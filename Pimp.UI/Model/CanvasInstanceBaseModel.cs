@@ -13,7 +13,8 @@ namespace Pimp.Model
 {
     [Serializable]
     [XmlInclude(typeof(CanvasImageModel))]
-    [XmlInclude(typeof(CanvasModuleModel))]
+    [XmlInclude(typeof(CanvasOneInputModuleModel))]
+    [XmlInclude(typeof(CanvasMultiInputModuleModel))]
     [XmlInclude(typeof(CanvasResultModel))]
     public class CanvasInstanceBaseModel : INotifyPropertyChanged
     {

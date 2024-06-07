@@ -28,9 +28,13 @@ namespace Pimp.ViewModel
                     if(value == null && _instance != null)
                     {
                         _instance.OutputBitmapSource = null;
-                        if (_instance is CanvasModuleModel module)
+                        if (_instance is CanvasOneInputModuleModel oneInputModule)
                         {
-                            module.ModuleInterface = null;
+                            oneInputModule.ModuleInterface = null;
+                        }
+                        else if (_instance is CanvasMultiInputModuleModel multiInputModule)
+                        {
+                            multiInputModule.ModuleInterface = null;
                         }
                     }
                     _instance = value;

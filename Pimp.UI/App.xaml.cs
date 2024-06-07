@@ -159,8 +159,8 @@ namespace Pimp
             {
                 await Task.Delay(100);
 
-                _canvasViewModel.SaveInstances();
-                _canvasViewModel.SaveEdges();
+                _canvasViewModel.SaveInstances("D:\\Pimp\\Instance_temp.xml");
+                _canvasViewModel.SaveEdges("D:\\Pimp\\Edges_temp.xml");
 
                 await Task.Delay(10);
 
@@ -215,7 +215,7 @@ namespace Pimp
                 (_detailWindow.DataContext as InstanceDetailViewModel).Instance = _canvasViewModel.SelectedInstance;
                 _canvasViewModel.PropertyChanged -= SelectedInstanceChanged;
                 _canvasViewModel.PropertyChanged += SelectedInstanceChanged;
-                _canvasViewModel.LoadAllInstances();
+                _canvasViewModel.LoadAllInstances("D:\\Pimp\\Instance_temp.xml", "D:\\Pimp\\Edges_temp.xml");
 
                 // Specify what is done when a file is changed, created, or deleted.
                 var list = Directory.GetFiles(_dllPath).Where(f => f.Contains("_copy")).ToList();
@@ -235,6 +235,9 @@ namespace Pimp
                 await Task.Delay(100);
 
                 // Enable the UI
+                File.Delete("D:\\Pimp\\Instance_temp.xml");
+                File.Delete("D:\\Pimp\\Edges_temp.xml");
+
                 Mouse.OverrideCursor = null;
                 _mainWindow.IsEnabled = true;
 

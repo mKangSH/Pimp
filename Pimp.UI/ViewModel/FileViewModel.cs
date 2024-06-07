@@ -15,6 +15,13 @@ namespace Pimp.ViewModel
 {
     public class FileViewModel : INotifyPropertyChanged
     {
+        enum FolderChangeType
+        {
+            Created,
+            Renamed,
+            Deleted
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -22,6 +29,12 @@ namespace Pimp.ViewModel
         }
 
         public event EventHandler AddCSharpFileRequested;
+
+        private FileSystemWatcher _resourceWatcher;
+        public FileSystemWatcher ResourceWatcher
+        {
+            get { return _resourceWatcher; }
+        }
 
         private FileSystemWatcher _folderWatcher;
         public FileSystemWatcher FolderWatcher
@@ -41,7 +54,6 @@ namespace Pimp.ViewModel
                 if (_selectedFolder != value)
                 {
                     _selectedFolder = value;
-                    OnPropertyChanged("SelectedFolder");
 
                     // 기존 FileSystemWatcher를 해제합니다.
                     if (_folderWatcher != null)
@@ -49,6 +61,12 @@ namespace Pimp.ViewModel
                         _folderWatcher.Changed -= FolderWatcher_Changed;
                         _folderWatcher.Deleted -= FolderWatcher_Changed;  // 파일이 삭제되었을 때도 이벤트 핸들러를 호출합니다.
                         _folderWatcher.Dispose();
+                    }
+
+                    if(value == null)
+                    {
+                        _selectedFolder = null;
+                        return;
                     }
 
                     // 새 FileSystemWatcher를 설정합니다.
@@ -62,6 +80,8 @@ namespace Pimp.ViewModel
                     _folderWatcher.EnableRaisingEvents = true;
 
                     UpdateFiles();
+
+                    OnPropertyChanged("SelectedFolder");
                 }
             }
         }
@@ -91,6 +111,8 @@ namespace Pimp.ViewModel
 
         private static readonly HashSet<string> _allowedExtensions = new HashSet<string> { ".cs", ".jpg", ".png", ".gif", ".bmp" };
 
+        private FolderModel _rootFolder;
+
         public FileViewModel(string projectPath)
         {
             ShowAddCSharpFileDialogCommand = new RelayCommand<object>(ShowAddCSharpFileDialog);
@@ -100,13 +122,13 @@ namespace Pimp.ViewModel
             Files = new ObservableCollection<FileModel>();
 
             // Create the root folder
-            var rootFolder = new FolderModel
+            _rootFolder = new FolderModel
             {
-                FolderPath = $"{projectPath}Resources\\", // Replace with your root folder path
-                FolderName = "Resources" // Replace with your root folder name
+                FolderPath = $"{projectPath}Resources\\",
+                FolderName = "Resources"
             };
 
-            foreach (var folderPath in Directory.GetDirectories(rootFolder.FolderPath))
+            foreach (var folderPath in Directory.GetDirectories(_rootFolder.FolderPath))
             {
                 var folder = new FolderModel
                 {
@@ -122,30 +144,156 @@ namespace Pimp.ViewModel
                 }
             }
 
+            _resourceWatcher = new FileSystemWatcher(_rootFolder.FolderPath)
+            {
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.DirectoryName,
+                EnableRaisingEvents = true
+            }; 
+
+            _resourceWatcher.Created += ResourceWatcher_Created;
+            _resourceWatcher.Renamed += ResourceWatcher_Renamed;
+            _resourceWatcher.Deleted += ResourceWatcher_Deleted;
+
             UpdateFiles();
+        }
+
+        private void ResourceWatcher_Created(object sender, FileSystemEventArgs e)
+        {
+            // UI 스레드에서 UpdateFiles 메서드를 호출합니다.
+            Application.Current.Dispatcher.Invoke(() => { UpdateFolders(e.FullPath, FolderChangeType.Created); });
+        }
+
+        private void ResourceWatcher_Renamed(object sender, RenamedEventArgs e)
+        {
+            // UI 스레드에서 UpdateFiles 메서드를 호출합니다.
+            Application.Current.Dispatcher.Invoke(() => { UpdateFolders(e.FullPath, FolderChangeType.Renamed, e.OldFullPath); });
+        }
+
+        private void ResourceWatcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            // UI 스레드에서 UpdateFiles 메서드를 호출합니다.
+            Application.Current.Dispatcher.Invoke(() => { UpdateFolders(e.FullPath, FolderChangeType.Deleted); });
+        }
+
+        private void UpdateFolders(string path, FolderChangeType changeType, string oldPath = null)
+        {
+            if(SelectedFolder != null)
+            {
+                SelectedFolder = null;
+            }
+
+            Folders.Clear();
+            foreach (var folderPath in Directory.GetDirectories(_rootFolder.FolderPath))
+            {
+                var folder = new FolderModel
+                {
+                    FolderName = Path.GetFileName(folderPath),
+                    FolderPath = folderPath
+                };
+
+                Folders.Add(folder);
+
+                if (SelectedFolder == null)
+                {
+                    SelectedFolder = folder;
+                }
+            }
+            //switch(changeType)
+            //{
+            //    case FolderChangeType.Created:
+            //        {
+            //            var folder = new FolderModel
+            //            {
+            //                FolderName = Path.GetFileName(path),
+            //                FolderPath = path
+            //            };
+            //            Folders.Add(folder);
+            //        }
+            //        break;
+            //    case FolderChangeType.Renamed:
+            //        {
+            //            bool recovered = false;
+            //            if(SelectedFolder.FolderPath == oldPath)
+            //            {
+            //                recovered = true;
+            //                SelectedFolder = null;
+            //            }
+
+            //            var folder = Folders.First(f => f.FolderPath == oldPath);
+            //            Folders.Remove(folder);
+
+            //            folder.FolderName = Path.GetFileName(path);
+            //            folder.FolderPath = path;
+            //            Folders.Add(folder);
+
+            //            if(recovered)
+            //            {
+            //                SelectedFolder = folder;
+            //            }
+            //        }
+            //        break;
+            //    case FolderChangeType.Deleted:
+            //        {
+            //            if(SelectedFolder.FolderPath == path)
+            //            {
+            //                SelectedFolder = null;
+            //            }
+
+            //            if(Folders.Any(folder => folder.FolderPath == path))
+            //            {
+            //                var folder = Folders.First(folder => folder.FolderPath == path);
+            //                Folders.Remove(folder);
+            //            }
+
+            //            if(Folders.Count > 0)
+            //            {
+            //                SelectedFolder = Folders[0];
+            //            }
+            //        }
+            //        break;
+            //}
         }
 
         public void UpdateFiles()
         {
-            if (SelectedFolder != null)
+            if (SelectedFolder == null)
             {
-                SelectedFile = null;
-                Files.Clear();
-                var filePaths = Directory.EnumerateFiles(SelectedFolder.FolderPath)
-                                         .Where(filePath => _allowedExtensions.Contains(Path.GetExtension(filePath).ToLower()));
+                return;
+            }
 
-                foreach (var filePath in filePaths)
+            SelectedFile = null;
+            Files.Clear();
+
+            // 선택된 폴더 내의 모든 하위 폴더를 가져옵니다.
+            var folderPaths = Directory.EnumerateDirectories(SelectedFolder.FolderPath);
+
+            foreach (var folderPath in folderPaths)
+            {
+                var folderInfo = new DirectoryInfo(folderPath);
+
+                Files.Add(new FileModel
                 {
-                    var fileInfo = new FileInfo(filePath);
-                    var extension = fileInfo.Extension.ToLower();
+                    FileName = folderInfo.Name,
+                    FilePath = folderInfo.FullName,
+                    FileExtension = ""  // 폴더는 확장자가 없습니다.
+                });
+            }
 
-                    Files.Add(new FileModel
-                    {
-                        FileName = fileInfo.Name,
-                        FilePath = fileInfo.FullName,
-                        FileExtension = extension
-                    });
-                }
+            var filePaths = Directory.EnumerateFiles(SelectedFolder.FolderPath)
+                                     .Where(filePath => _allowedExtensions.Contains(Path.GetExtension(filePath).ToLower()));
+
+            foreach (var filePath in filePaths)
+            {
+                var fileInfo = new FileInfo(filePath);
+                var extension = fileInfo.Extension.ToLower();
+
+                Files.Add(new FileModel
+                {
+                    FileName = fileInfo.Name,
+                    FilePath = fileInfo.FullName,
+                    FileExtension = extension
+                });
             }
         }
 

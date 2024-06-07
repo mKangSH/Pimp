@@ -86,7 +86,6 @@ namespace Pimp.ViewModel
             }
         }
 
-
         private CanvasInstanceBaseModel _selectedInstance;
         public CanvasInstanceBaseModel SelectedInstance
         {
@@ -98,13 +97,19 @@ namespace Pimp.ViewModel
                     if (_selectedInstance != null)
                     {
                         _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
-                        if (_selectedInstance is CanvasModuleModel)
+                        if (_selectedInstance is CanvasOneInputModuleModel oneInputModuleModel)
                         {
-                            (_selectedInstance as CanvasModuleModel).ModuleInterface = null;
+                            oneInputModuleModel.ModuleInterface = null;
+                        }
+                        if (_selectedInstance is CanvasMultiInputModuleModel multiInputModuleModel)
+                        {
+                            // TODO : MultiInputModule Model 정확한 동작 기입 필요
+                            multiInputModuleModel.ModuleInterface = null;
                         }
                         _selectedInstance.ZIndex = 0;
                         _selectedInstance.IsHighlighted = false;
                     }
+                    _copiedInstance = null;
                     _selectedInstance = null;
 
                     return;
@@ -115,6 +120,7 @@ namespace Pimp.ViewModel
                     _selectedInstance.ZIndex = 0;
                     _selectedInstance.IsHighlighted = false;
                     _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
+                    _copiedInstance = null;
                 }
 
                 if (value != null && _selectedInstance != value)
@@ -203,31 +209,37 @@ namespace Pimp.ViewModel
                     return;
                 }
                 
-                var instance = new CanvasModuleModel
+                if(module is IOneInputModule oneInputModule)
                 {
-                    Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
-                    X = Math.Round(point.X),
-                    Y = Math.Round(point.Y),
-                    ZIndex = 0,
-                    FileModel = file,
+                    var instance = new CanvasOneInputModuleModel
+                    {
+                        Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
+                        X = Math.Round(point.X),
+                        Y = Math.Round(point.Y),
+                        ZIndex = 0,
+                        FileModel = file,
 
-                    ModuleInterface = module as IModule,
-                };
-                AddInstance(instance);
+                        ModuleInterface = oneInputModule,
+                    };
+                    AddInstance(instance);
+                }
+                else if(module is IMultiInputModule multiInputModule)
+                {
+                    var instance = new CanvasMultiInputModuleModel
+                    {
+                        Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
+                        X = Math.Round(point.X),
+                        Y = Math.Round(point.Y),
+                        ZIndex = 0,
+                        FileModel = file,
+
+                        ModuleInterface = multiInputModule,
+                    };
+                    AddInstance(instance);
+                }
             }
             else if (extension == ".cs" && file.FilePath.Contains("Results"))
             {
-                object module = null;
-                try
-                {
-                    module = Activator.CreateInstance(App.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Results.{className}"));
-                }
-                catch
-                {
-                    Logger.Instance.AddLog($"Module {className}을(를) 로드하는데 실패했습니다. \nAssembly Build를 시도해보세요!");
-                    return;
-                }
-                
                 var instance = new CanvasResultModel
                 {
                     Name = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{(ResultModuleCount).ToString("000")}",
@@ -271,20 +283,21 @@ namespace Pimp.ViewModel
             var connectedEdges = Edges.Where(edge => edge.Start == _selectedInstance || edge.End == _selectedInstance).ToList();
             foreach (var edge in connectedEdges)
             {
-                if (edge.Start == _selectedInstance && edge.End is CanvasModuleModel endModule)
-                {
-                    edge.End.OutputBitmapSource = null;
-                    (edge.End as CanvasModuleModel)?.Run();
+                edge.End.OutputBitmapSource = null;
+                edge.End.Run();
 
+                if (edge.Start == _selectedInstance && edge.End is CanvasOneInputModuleModel endModule)
+                {
                     endModule.CanConnect = true;
                 }
-                else if (edge.Start == _selectedInstance && edge.End is CanvasResultModel)
+                else if (edge.Start == _selectedInstance && edge.End is CanvasMultiInputModuleModel multiInputModuleModel)
                 {
-                    edge.End.OutputBitmapSource = null;
-                    (edge.End as CanvasResultModel)?.Run();
-
-                    (edge.End as CanvasResultModel)?.DeleteResult(_selectedInstance.Name);
-                    edge.Start.NameChanged -= (edge.End as CanvasResultModel).ParentNameChanged;
+                    // TODO : 만약 기능이 추가되게 된다면 정의 필요
+                }
+                else if (edge.Start == _selectedInstance && edge.End is CanvasResultModel resultModule)
+                {
+                    resultModule?.DeleteResult(_selectedInstance.Name);
+                    edge.Start.NameChanged -= resultModule.ParentNameChanged;
                 }
                 else
                 {
@@ -292,15 +305,19 @@ namespace Pimp.ViewModel
                 }
 
                 edge.Start.OutputBitmapSourceChanged -= edge.End.OnOutputBitmapSourceChanged;
-
                 Edges.Remove(edge);
             }
 
             Instances.Remove(_selectedInstance);
-            if (_selectedInstance is CanvasModuleModel module)
+            if (_selectedInstance is CanvasOneInputModuleModel oneInputModule)
             {
-                module.ModuleInterface = null;
+                oneInputModule.ModuleInterface = null;
             }
+            else if(_selectedInstance is CanvasMultiInputModuleModel multiInputModule)
+            {
+                multiInputModule.ModuleInterface = null;
+            }
+
             if(_selectedInstance?.OutputBitmapSource != null)
             {
                 _selectedInstance.OutputBitmapSource = null;
@@ -358,12 +375,22 @@ namespace Pimp.ViewModel
             }
 
             // _selectedInstance가 CanvasModuleModel 타입인 경우 ModuleInterface의 속성도 추가
-            if (_selectedInstance is CanvasModuleModel canvasModuleModel && canvasModuleModel.ModuleInterface != null)
+            if (_selectedInstance is CanvasOneInputModuleModel canvasOneInputModuleModel && canvasOneInputModuleModel.ModuleInterface != null)
             {
-                var moduleInterfaceProperties = canvasModuleModel.ModuleInterface.GetType().GetProperties().Where(p => !Attribute.IsDefined(p, typeof(UIHiddenAttribute)));
+                var moduleInterfaceProperties = canvasOneInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
                 foreach (var property in moduleInterfaceProperties)
                 {
-                    var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasModuleModel.ModuleInterface), property);
+                    var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasOneInputModuleModel.ModuleInterface), property);
+                    propertyModel.PropertyChanged += PropertyModuleModel_PropertyChanged;
+                    Properties.Add(propertyModel);
+                }
+            }
+            else if (_selectedInstance is CanvasMultiInputModuleModel canvasMultiInputModuleModel && canvasMultiInputModuleModel.ModuleInterface != null)
+            {
+                var moduleInterfaceProperties = canvasMultiInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                foreach (var property in moduleInterfaceProperties)
+                {
+                    var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasMultiInputModuleModel.ModuleInterface), property);
                     propertyModel.PropertyChanged += PropertyModuleModel_PropertyChanged;
                     Properties.Add(propertyModel);
                 }
@@ -377,26 +404,60 @@ namespace Pimp.ViewModel
                 return;
             }
 
-            if (_selectedInstance is not CanvasModuleModel module)
+            if (_selectedInstance is CanvasOneInputModuleModel oneInputModule)
             {
-                return;
+                var propertyModel = (PropertyModel)sender;
+                var property = oneInputModule.ModuleInterface.GetType().GetProperty(propertyModel.Name);
+
+                var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
+                property.SetValue(oneInputModule.ModuleInterface, value);
+
+                // X, Y, ZIndex 속성은 모듈에 적용되지 않도록 함 (캔버스 이동 관련 Property)
+                if (property.Name == "X" || property.Name == "Y" || property.Name == "ZIndex")
+                {
+                    return;
+                }
+
+                oneInputModule.ModuleInterface.Run();
+                oneInputModule.OutputBitmapSource = oneInputModule.ModuleInterface.OutputImage;
+                if (oneInputModule.ModuleInterface.OverlayImage != null && oneInputModule.ModuleInterface.OverlayImage.Width > 0 && oneInputModule.ModuleInterface.OverlayImage.Height > 0)
+                {
+                    oneInputModule.OverlayBitmapSource = oneInputModule.ModuleInterface.OverlayImage.Clone();
+                }
+                else
+                {
+                    oneInputModule.OverlayBitmapSource = null;
+                }
+                oneInputModule.Run();
             }
-
-            var propertyModel = (PropertyModel)sender;
-            var property = module.ModuleInterface.GetType().GetProperty(propertyModel.Name);
-
-            var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
-            property.SetValue(module.ModuleInterface, value);
-
-            // X, Y, ZIndex 속성은 모듈에 적용되지 않도록 함 (캔버스 이동 관련 Property)
-            if (property.Name == "X" || property.Name == "Y" || property.Name == "ZIndex")
+            else if (_selectedInstance is CanvasMultiInputModuleModel multiInputModule)
             {
-                return;
-            }
+                // TODO : multiInputModule의 동작 정의 필요
 
-            module.ModuleInterface.Run();
-            module.OutputBitmapSource = module.ModuleInterface.OutputImage;
-            module.Run();
+                var propertyModel = (PropertyModel)sender;
+                var property = multiInputModule.ModuleInterface.GetType().GetProperty(propertyModel.Name);
+
+                var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
+                property.SetValue(multiInputModule.ModuleInterface, value);
+
+                // X, Y, ZIndex 속성은 모듈에 적용되지 않도록 함 (캔버스 이동 관련 Property)
+                if (property.Name == "X" || property.Name == "Y" || property.Name == "ZIndex")
+                {
+                    return;
+                }
+
+                multiInputModule.ModuleInterface.Run();
+                multiInputModule.OutputBitmapSource = multiInputModule.ModuleInterface.OutputImage;
+                if (multiInputModule.ModuleInterface.OverlayImage != null && multiInputModule.ModuleInterface.OverlayImage.Width > 0 && multiInputModule.ModuleInterface.OverlayImage.Height > 0)
+                {
+                    multiInputModule.OverlayBitmapSource = multiInputModule.ModuleInterface.OverlayImage.Clone();
+                }
+                else
+                {
+                    multiInputModule.OverlayBitmapSource = null;
+                }
+                multiInputModule.Run();
+            }
         }
 
         private void PropertyModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -416,10 +477,15 @@ namespace Pimp.ViewModel
             var InstancesToRemove = Instances.ToList();
             foreach(var instance in Instances)
             {
-                if (instance is CanvasModuleModel module)
+                if (instance is CanvasOneInputModuleModel oneInputModule)
                 {
-                    module.ModuleInterface = null;
+                    oneInputModule.ModuleInterface = null;
                 }
+                else if(instance is CanvasMultiInputModuleModel multiInputModule)
+                {
+                    multiInputModule.ModuleInterface = null;
+                }
+
                 if (instance?.OutputBitmapSource != null)
                 {
                     instance.OutputBitmapSource = null;
@@ -453,20 +519,20 @@ namespace Pimp.ViewModel
             PropertiesView.Refresh();
         }
 
-        public void SaveInstances()
+        public void SaveInstances(string path)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
-            using (TextWriter writer = new StreamWriter("D:\\Pimp\\instance.xml"))
+            using (TextWriter writer = new StreamWriter(path))
             {
                 serializer.Serialize(writer, Instances);
             }
             SaveProperties();
         }
 
-        public void SaveEdges()
+        public void SaveEdges(string path)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
-            using (TextWriter writer = new StreamWriter("D:\\Pimp\\Edges.xml"))
+            using (TextWriter writer = new StreamWriter(path))
             {
                 serializer.Serialize(writer, Edges);
             }
@@ -499,7 +565,11 @@ namespace Pimp.ViewModel
             using (TextReader reader = new StreamReader("D:\\Pimp\\Properties.xml"))
             {
                 var propertiesOfAllIntances = (SerializableDictionary<string, List<PropertyModel>>)serializer.Deserialize(reader);
-                foreach (var instance in Instances.OfType<CanvasModuleModel>())
+
+                // TODO : CanvasMultiInputModuleModel의 동작 정의 필요
+                Instances.OfType<CanvasMultiInputModuleModel>();
+
+                foreach (var instance in Instances.OfType<CanvasOneInputModuleModel>())
                 {
                     if (propertiesOfAllIntances.TryGetValue(instance.Name, out var properties) == false)
                     {
@@ -532,7 +602,7 @@ namespace Pimp.ViewModel
         }
 
         List<CanvasInstanceBaseModel> _exceptionInstances = new List<CanvasInstanceBaseModel>();
-        public void LoadAllInstances()
+        public void LoadAllInstances(string instancePath, string edgePath)
         {
             _exceptionInstances.Clear();
 
@@ -540,15 +610,20 @@ namespace Pimp.ViewModel
             RemoveAllInstances();
             ClearProperties();
 
-            LoadInstances();
-            LoadEdges();
+            LoadInstances(instancePath);
+            LoadEdges(edgePath);
 
             foreach (var instance in _exceptionInstances)
             {
-                if (instance is CanvasModuleModel module)
+                if (instance is CanvasOneInputModuleModel oneInputModule)
                 {
-                    module.ModuleInterface = null;
+                    oneInputModule.ModuleInterface = null;
                 }
+                else if (instance is CanvasMultiInputModuleModel multiInputModule)
+                {
+                    multiInputModule.ModuleInterface = null;
+                }
+
                 if (instance?.OutputBitmapSource != null)
                 {
                     instance.OutputBitmapSource = null;
@@ -559,13 +634,13 @@ namespace Pimp.ViewModel
 
             if (_exceptionInstances.Count > 0)
             {
-                SaveInstances();
-                SaveEdges();
+                SaveInstances(instancePath);
+                SaveEdges(edgePath);
 
-                LoadInstances();
+                LoadInstances(instancePath);
 
                 RemoveAllEdges();
-                LoadEdges();
+                LoadEdges(edgePath);
 
                 MessageBox.Show($"다음 인스턴스들은 로드에 실패했습니다.\n{string.Join("\n", _exceptionInstances)}");
             }
@@ -575,11 +650,11 @@ namespace Pimp.ViewModel
             }
         }
 
-        private void LoadInstances()
+        private void LoadInstances(string path)
         {
             // 역직렬화
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
-            using (TextReader reader = new StreamReader("D:\\Pimp\\instance.xml"))
+            using (TextReader reader = new StreamReader(path))
             {
                 Instances = (ObservableCollection<CanvasInstanceBaseModel>)serializer.Deserialize(reader);
             }
@@ -592,12 +667,19 @@ namespace Pimp.ViewModel
                     {
                         instance.OutputBitmapSource = GetBitmapSource(instance.FileModel.FilePath).Clone();
                     }
-                    else if (instance is CanvasModuleModel)
+                    else if (instance is CanvasOneInputModuleModel)
                     {
                         var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
 
                         var module = Activator.CreateInstance(App.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
-                        (instance as CanvasModuleModel).ModuleInterface = module as IModule;
+                        (instance as CanvasOneInputModuleModel).ModuleInterface = module as IOneInputModule;
+                    }
+                    else if (instance is CanvasMultiInputModuleModel)
+                    {
+                        var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
+
+                        var module = Activator.CreateInstance(App.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        (instance as CanvasMultiInputModuleModel).ModuleInterface = module as IMultiInputModule;
                     }
                 }
                 catch
@@ -609,10 +691,10 @@ namespace Pimp.ViewModel
             OnPropertyChanged(nameof(Instances));
         }
 
-        private void LoadEdges()
+        private void LoadEdges(string path)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
-            using (TextReader reader = new StreamReader("D:\\Pimp\\edges.xml"))
+            using (TextReader reader = new StreamReader(path))
             {
                 var edges = (ObservableCollection<CanvasEdge>)serializer.Deserialize(reader);
                 foreach (var edge in edges)
@@ -625,18 +707,27 @@ namespace Pimp.ViewModel
                         continue;
                     }
 
-                    if (edgeEnd is CanvasModuleModel && edgeStart != edgeEnd)
+                    if (edgeEnd is CanvasOneInputModuleModel && edgeStart != edgeEnd)
                     {
                         // Module의 Input은 1개이므로 이미 연결된 경우 더 이상 연결할 수 없습니다.
-                        if ((edgeEnd as CanvasModuleModel).CanConnect)
+                        if ((edgeEnd as CanvasOneInputModuleModel).CanConnect)
                         {
-                            (edgeEnd as CanvasModuleModel).CanConnect = false;
+                            (edgeEnd as CanvasOneInputModuleModel).CanConnect = false;
                             edgeStart.OutputBitmapSourceChanged -= edgeEnd.OnOutputBitmapSourceChanged;
                             edgeStart.OutputBitmapSourceChanged += edgeEnd.OnOutputBitmapSourceChanged;
                             AddEdge(edgeStart, edgeEnd);
 
-                            (edgeEnd as CanvasModuleModel)?.OnOutputBitmapSourceChanged(edgeStart.Name, edgeStart.OutputBitmapSource);
+                            (edgeEnd as CanvasOneInputModuleModel)?.OnOutputBitmapSourceChanged(edgeStart.Name, edgeStart.OutputBitmapSource);
                         }
+                    }
+                    else if (edgeEnd is CanvasMultiInputModuleModel && edgeStart != edgeEnd)
+                    {
+                        // TODO : MultiInputModule의 동작 정의 필요
+                        edgeStart.OutputBitmapSourceChanged -= edgeEnd.OnOutputBitmapSourceChanged;
+                        edgeStart.OutputBitmapSourceChanged += edgeEnd.OnOutputBitmapSourceChanged;
+                        AddEdge(edgeStart, edgeEnd);
+
+                        (edgeEnd as CanvasMultiInputModuleModel)?.OnOutputBitmapSourceChanged(edgeStart.Name, edgeStart.OutputBitmapSource);
                     }
                     else if (edgeEnd is CanvasResultModel && edgeStart != edgeEnd)
                     {
@@ -658,13 +749,21 @@ namespace Pimp.ViewModel
             var connectedEdges = Edges.ToList();
             foreach (var edge in connectedEdges)
             {
-                if (edge.End is CanvasModuleModel endModule)
+                if (edge.End is CanvasOneInputModuleModel endOneInputModule)
                 {
                     edge.End.OutputBitmapSource = null;
                     
                     // (edge.End as CanvasModuleModel)?.Run();
-                    endModule.CanConnect = true;
-                    endModule.ModuleInterface = null;
+                    endOneInputModule.CanConnect = true;
+                    endOneInputModule.ModuleInterface = null;
+                }
+                else if (edge.End is CanvasMultiInputModuleModel endMultiInputModule)
+                {
+                    // TODO : MultiInputModuleModel 정확한 동작 기입 필요
+                    edge.End.OutputBitmapSource = null;
+
+                    // (edge.End as CanvasModuleModel)?.Run();
+                    endMultiInputModule.ModuleInterface = null;
                 }
                 else if (edge.End is CanvasResultModel resultModule)
                 {
@@ -683,6 +782,79 @@ namespace Pimp.ViewModel
                 edge.Start.OutputBitmapSourceChanged -= edge.End.OnOutputBitmapSourceChanged;
 
                 Edges.Remove(edge);
+            }
+        }
+
+
+        private CanvasInstanceBaseModel _copiedInstance;
+
+        public void CopySelectedInstance()
+        {
+            _copiedInstance = SelectedInstance;
+        }
+
+        public void PasteCopiedInstance()
+        {
+            if(_copiedInstance == null)
+            {
+                return;
+            }
+
+            AddInstanceToCanvas(_copiedInstance.FileModel, new Point(_copiedInstance.X + 50, _copiedInstance.Y + 50));
+
+            var instance = Instances.Last();
+            if (instance is CanvasImageModel imageModel)
+            {
+                
+            }
+            else if (instance is CanvasOneInputModuleModel oneInputModuleModel)
+            {
+                var copyInstance = (_copiedInstance as CanvasOneInputModuleModel);
+
+                if (oneInputModuleModel.ModuleInterface != null)
+                {
+                    var targetModuleInterfaceProperties = oneInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                    var copyModuleInterfaceProperties = copyInstance.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                    
+                    foreach (var targetProperty in targetModuleInterfaceProperties)
+                    {
+                        var copyProperty = copyModuleInterfaceProperties.FirstOrDefault(p => p.Name == targetProperty.Name);
+                        if (copyProperty == null)
+                        {
+                            continue;
+                        }
+
+                        targetProperty.SetValue(oneInputModuleModel.ModuleInterface, copyProperty.GetValue(copyInstance.ModuleInterface));
+                    }
+                }
+            }
+            else if (instance is CanvasMultiInputModuleModel multiInputModuleModel)
+            {
+                var copyInstance = (_copiedInstance as CanvasMultiInputModuleModel);
+
+                if (multiInputModuleModel.ModuleInterface != null)
+                {
+                    var targetModuleInterfaceProperties = multiInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                    var copyModuleInterfaceProperties = copyInstance.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+
+                    foreach (var targetProperty in targetModuleInterfaceProperties)
+                    {
+                        var copyProperty = copyModuleInterfaceProperties.FirstOrDefault(p => p.Name == targetProperty.Name);
+                        if (copyProperty == null)
+                        {
+                            continue;
+                        }
+
+                        targetProperty.SetValue(multiInputModuleModel.ModuleInterface, copyProperty.GetValue(copyInstance.ModuleInterface));
+                    }
+                }
+            }
+            else if(instance is CanvasResultModel resultModel)
+            {
+                // TODO : 동작 정의 필요
+                var copyInstance = (_copiedInstance as CanvasResultModel);
+                resultModel.ImageFormat = copyInstance.ImageFormat;
+                resultModel.ResultPath = copyInstance.ResultPath;
             }
         }
     }

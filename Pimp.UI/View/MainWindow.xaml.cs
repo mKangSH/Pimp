@@ -76,6 +76,14 @@ namespace Pimp
                 }
                 // Add more checks as needed
             }
+            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                (this.CanvasControl.DataContext as CanvasViewModel)?.CopySelectedInstance();
+            }
+            else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                (this.CanvasControl.DataContext as CanvasViewModel)?.PasteCopiedInstance();
+            }
         }
     }
 }

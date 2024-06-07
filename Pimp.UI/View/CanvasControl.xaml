@@ -17,7 +17,8 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <UI:CanvasTemplateSelector x:Key="CanvasTemplateSelector"
                               ImageTemplate="{StaticResource CanvasImageTemplate}" 
-                              ModuleTemplate="{StaticResource CanvasModuleTemplate}"
+                              OneInputModuleTemplate="{StaticResource CanvasOneInputModuleTemplate}"
+                              MultiInputModuleTemplate="{StaticResource CanvasMultiInputModuleTemplate}"
                               ResultTemplate="{StaticResource CanvasResultTemplate}"/>
         </ResourceDictionary>
     </UserControl.Resources>

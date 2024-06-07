@@ -34,6 +34,7 @@
         
         <ListView DockPanel.Dock="Right" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Padding="15"
                   MouseMove="ListView_MouseMove"
+                  MouseDoubleClick="ListView_DoubleClick"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemsPanel>

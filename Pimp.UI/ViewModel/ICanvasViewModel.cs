@@ -8,8 +8,8 @@ namespace Pimp
 {
     public interface ICanvasViewModel
     {
-        void SaveInstances();
-        void SaveEdges();
-        void LoadAllInstances();
+        void SaveInstances(string path);
+        void SaveEdges(string path);
+        void LoadAllInstances(string instancePath, string edgePath);
     }
 }

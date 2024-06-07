@@ -34,7 +34,7 @@
                         <RectangleGeometry Rect="0,0,140,100" RadiusX="15" RadiusY="15" />
                     </Path.Data>
                 </Path>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"
+                <TextBlock Grid.Row="0" Width="100"
                            Text="{Binding Name}" Foreground="AliceBlue" FontWeight="Bold" TextAlignment="Center"/>
                 <Line Grid.Row="1" Stroke="AliceBlue" X2="{Binding ActualWidth, ElementName=InstanceGrid}" StrokeThickness="1" />
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
@@ -47,7 +47,7 @@
         </Border>
     </DataTemplate>
 
-    <DataTemplate x:Key="CanvasModuleTemplate">
+    <DataTemplate x:Key="CanvasOneInputModuleTemplate">
         <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A"
                 BorderBrush="{Binding IsHighlighted, Converter={StaticResource BorderColorConverter}}">
             <Grid x:Name="InstanceGrid">
@@ -61,7 +61,7 @@
                         <RectangleGeometry Rect="0,0,140,100" RadiusX="15" RadiusY="15" />
                     </Path.Data>
                 </Path>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"
+                <TextBlock Grid.Row="0" Width="100"
                            Text="{Binding Name}" Foreground="AliceBlue" FontWeight="Bold" TextAlignment="Center"/>
                 <Line Grid.Row="1" Stroke="AliceBlue" X2="{Binding ActualWidth, ElementName=InstanceGrid}" StrokeThickness="1" />
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
@@ -72,6 +72,41 @@
 
                     <Ellipse x:Name="Output" Stroke="AliceBlue" StrokeThickness="2" Fill="Transparent" 
                              Width="10" Height="10" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="CanvasMultiInputModuleTemplate">
+        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A"
+            BorderBrush="{Binding IsHighlighted, Converter={StaticResource BorderColorConverter}}">
+            <Grid x:Name="InstanceGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="22"/>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Path Fill="DarkBlue">
+                    <Path.Data>
+                        <RectangleGeometry Rect="0,0,160,100" RadiusX="15" RadiusY="15" />
+                    </Path.Data>
+                </Path>
+                <TextBlock Grid.Row="0" Width="100"
+                       Text="{Binding Name}" Foreground="AliceBlue" FontWeight="Bold" TextAlignment="Center"/>
+                <Line Grid.Row="1" Stroke="AliceBlue" X2="{Binding ActualWidth, ElementName=InstanceGrid}" StrokeThickness="1" />
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
+                    <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Input" Foreground="AliceBlue" FontFamily="Consolas" HorizontalAlignment="Left" Margin="1.5, 0, 0, 0"/>
+                        <Ellipse x:Name="Input" Stroke="AliceBlue" StrokeThickness="2" Fill="Transparent" 
+                                 Width="10" Height="10" Margin="0,0,5,0"/>
+                        <TextBlock Text="Params" Foreground="AliceBlue" FontFamily="Consolas" HorizontalAlignment="Left" Margin="1.5, 20, 0, 0"/>
+                        <Ellipse x:Name="Params" Stroke="AliceBlue" StrokeThickness="2" Fill="Transparent" 
+                                 Width="10" Height="10" Margin="0,0,5,0"/>
+                    </StackPanel>
+                    <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource CanvasInstanceTemplate}"/>
+
+                    <Ellipse x:Name="Output" Stroke="AliceBlue" StrokeThickness="2" Fill="Transparent" 
+                         Width="10" Height="10" Margin="5,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -91,7 +126,7 @@
                         <RectangleGeometry Rect="0,0,140,100" RadiusX="15" RadiusY="15" />
                     </Path.Data>
                 </Path>
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"
+                <TextBlock Grid.Row="0" Width="100"
                        Text="{Binding Name}" Foreground="AliceBlue" FontWeight="Bold" TextAlignment="Center"/>
                 <Line Grid.Row="1" Stroke="AliceBlue" X2="{Binding ActualWidth, ElementName=InstanceGrid}" StrokeThickness="1" />
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5" Height="100">

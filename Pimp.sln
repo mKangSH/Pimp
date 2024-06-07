@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pimp.UI", "Pimp.UI\Pimp.UI.csproj", "{2F38E4A5-E5B9-4EF2-B61B-148A97493E0C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pimp.Common", "Pimp.Common\Pimp.Common.csproj", "{0D1D9074-9C8E-4B3F-BB4A-90D1DEC1C5A3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F38E4A5-E5B9-4EF2-B61B-148A97493E0C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2F38E4A5-E5B9-4EF2-B61B-148A97493E0C}.Debug|x64.Build.0 = Debug|Any CPU
+		{2F38E4A5-E5B9-4EF2-B61B-148A97493E0C}.Release|x64.ActiveCfg = Release|Any CPU
+		{2F38E4A5-E5B9-4EF2-B61B-148A97493E0C}.Release|x64.Build.0 = Release|Any CPU
+		{0D1D9074-9C8E-4B3F-BB4A-90D1DEC1C5A3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0D1D9074-9C8E-4B3F-BB4A-90D1DEC1C5A3}.Debug|x64.Build.0 = Debug|Any CPU
+		{0D1D9074-9C8E-4B3F-BB4A-90D1DEC1C5A3}.Release|x64.ActiveCfg = Release|Any CPU
+		{0D1D9074-9C8E-4B3F-BB4A-90D1DEC1C5A3}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B557889B-FCA3-401E-BAB6-8B94F4DA03F8}
+	EndGlobalSection
+EndGlobal

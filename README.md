@@ -6,7 +6,7 @@
 Asset을 좌클릭 Drag And Drop으로 Canvas에 배치한 이후
 우클릭으로 Asset끼리 연결하면 Image에 연결된 모듈이 실시간으로 업데이트 된다.
 ### MainUI
-<img src="./Document/Main UI.png" title="px(픽셀) 크기 설정" alt="MainUI"></img><br/>
+<img src="./Document/Main UI_2024_0505.png" title="px(픽셀) 크기 설정" alt="MainUI"></img><br/>
 
 ## 사용 언어
 **Language : C#**    

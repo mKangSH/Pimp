@@ -237,6 +237,7 @@ namespace Pimp
                 // Enable the UI
                 File.Delete("D:\\Pimp\\Instance_temp.xml");
                 File.Delete("D:\\Pimp\\Edges_temp.xml");
+                File.Delete("D:\\Pimp\\Properties_temp.xml");
 
                 Mouse.OverrideCursor = null;
                 _mainWindow.IsEnabled = true;

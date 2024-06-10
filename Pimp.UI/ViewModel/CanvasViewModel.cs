@@ -531,7 +531,15 @@ namespace Pimp.ViewModel
             {
                 serializer.Serialize(writer, Instances);
             }
-            SaveProperties();
+
+            if (path.Contains("_temp"))
+            {
+                SaveProperties($"{Directory.GetParent(path).FullName}\\Properties_temp.xml");
+            }
+            else
+            {
+                SaveProperties($"{Directory.GetParent(path).FullName}\\Properties.xml");
+            }
         }
 
         public void SaveEdges(string path)
@@ -549,12 +557,12 @@ namespace Pimp.ViewModel
         }
 
         private SerializableDictionary<string, List<PropertyModel>> _propertiesForSerialization = new SerializableDictionary<string, List<PropertyModel>>();
-        public void SaveProperties()
+        public void SaveProperties(string path)
         {
             // TODO : 동작이 너무 느린 경우 SelectedInstance 조회를 줄이는 방법을 찾아야 합니다.
             var lastSelectedInstance = SelectedInstance;
             _propertiesForSerialization.Clear();
-            
+
             foreach (var instance in Instances)
             {
                 SelectedInstance = instance;
@@ -563,16 +571,16 @@ namespace Pimp.ViewModel
             SelectedInstance = lastSelectedInstance;
 
             XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
-            using (TextWriter writer = new StreamWriter("D:\\Pimp\\Properties.xml"))
+            using (TextWriter writer = new StreamWriter(path))
             {
                 serializer.Serialize(writer, _propertiesForSerialization);
             }
         }
 
-        private void LoadProperties()
+        private void LoadProperties(string path)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
-            using (TextReader reader = new StreamReader("D:\\Pimp\\Properties.xml"))
+            using (TextReader reader = new StreamReader(path))
             {
                 var propertiesOfAllIntances = (SerializableDictionary<string, List<PropertyModel>>)serializer.Deserialize(reader);
 
@@ -697,7 +705,16 @@ namespace Pimp.ViewModel
                     _exceptionInstances.Add(instance);
                 }
             }
-            LoadProperties();
+
+            if (path.Contains("_temp"))
+            {
+                LoadProperties($"{Directory.GetParent(path).FullName}\\Properties_temp.xml");
+            }
+            else
+            {
+                LoadProperties($"{Directory.GetParent(path).FullName}\\Properties.xml");
+            }
+
             OnPropertyChanged(nameof(Instances));
         }
 

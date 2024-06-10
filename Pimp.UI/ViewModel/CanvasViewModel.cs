@@ -521,6 +521,11 @@ namespace Pimp.ViewModel
 
         public void SaveInstances(string path)
         {
+            if (Directory.Exists(Directory.GetParent(path).FullName) == false)
+            {
+                Directory.CreateDirectory(Directory.GetParent(path).FullName);
+            }
+
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
             using (TextWriter writer = new StreamWriter(path))
             {
@@ -531,6 +536,11 @@ namespace Pimp.ViewModel
 
         public void SaveEdges(string path)
         {
+            if (Directory.Exists(Directory.GetParent(path).FullName) == false)
+            {
+                Directory.CreateDirectory(Directory.GetParent(path).FullName);
+            }
+
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
             using (TextWriter writer = new StreamWriter(path))
             {

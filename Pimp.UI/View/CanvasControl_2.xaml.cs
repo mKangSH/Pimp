@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pimp.View.TestCode
+namespace Pimp.View
 {
     /// <summary>
     /// CanvasControl_2.xaml에 대한 상호 작용 논리
@@ -100,6 +100,16 @@ namespace Pimp.View.TestCode
         {
             return point.X >= instance.X && point.X <= instance.X + 130/*instance.Width*/&&
                    point.Y >= instance.Y && point.Y <= instance.Y + 130/*instance.Height*/;
+        }
+
+        private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var mousePosition = e.GetPosition(canvas);
+            var instance = GetInstanceAtPosition(mousePosition);
+            if (instance != null)
+            {
+                
+            }
         }
     }
 }

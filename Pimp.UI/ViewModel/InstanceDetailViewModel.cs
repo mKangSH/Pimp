@@ -28,18 +28,6 @@ namespace Pimp.ViewModel
                     return;
                 }
 
-                if(value == null && _instance != null)
-                {
-                    _instance.OutputBitmapSource = null;
-                    if (_instance is CanvasOneInputModuleModel oneInputModule)
-                    {
-                        oneInputModule.ModuleInterface = null;
-                    }
-                    else if (_instance is CanvasMultiInputModuleModel multiInputModule)
-                    {
-                        multiInputModule.ModuleInterface = null;
-                    }
-                }
                 _instance = value;
                 OnPropertyChanged(nameof(Instance));
             }
@@ -51,18 +39,18 @@ namespace Pimp.ViewModel
             get { return _propertiesView; }
             set
             {
-                if (_propertiesView != value)
+                if (_propertiesView == value)
                 {
-                    _propertiesView = value;
-                    OnPropertyChanged(nameof(PropertiesView));
+                    return;
                 }
+
+                _propertiesView = value;
+                OnPropertyChanged(nameof(PropertiesView));
             }
         }
 
-        public InstanceDetailViewModel(CanvasInstanceBaseModel instance, ListCollectionView propertiesView)
+        public InstanceDetailViewModel()
         {
-            Instance = instance;
-            PropertiesView = propertiesView;
         }
     }
 }

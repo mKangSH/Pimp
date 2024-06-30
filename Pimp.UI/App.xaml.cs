@@ -29,6 +29,8 @@ namespace Pimp
     public partial class App : Application
     {
         MainWindow _mainWindow = new MainWindow();
+        InstanceDetailWindow _detailWindow = new InstanceDetailWindow();
+
         CanvasViewModel_2 _canvasViewModel;
         
         AddCSharpFileDialogWindow _dialog = new AddCSharpFileDialogWindow();
@@ -45,6 +47,8 @@ namespace Pimp
             // Show부터 하지 않으면 ScrollViewer의 ScrollToVerticalOffset, ScrollToHorizontalOffset가 동작하지 않음.
             _mainWindow.Show();
             ConstructView();
+
+            ConsturctDetailWindow();
         }
 
         private void ConstructView()
@@ -52,7 +56,7 @@ namespace Pimp
             _mainWindow.DataContext = new MainWindowViewModel(_canvasViewModel);
 
             _mainWindow.CanvasControl.DataContext = _canvasViewModel;
-            // _mainWindow.CanvasInstanceControl.DataContext = _canvasViewModel;
+            _mainWindow.CanvasInstanceControl.DataContext = _canvasViewModel;
 
             // TODO : Resource Manager 클래스를 이용해야 함.
             _mainWindow.FileListControl.DataContext = new FileViewModel(@"D:\CodeProject\Pimp.CSharpAssembly\");
@@ -94,35 +98,35 @@ namespace Pimp
             _dialog.Close();
             _dialog = null;
 
+            CloseDetailWindow();
+
             Application.Current.Shutdown();
         }
 
-        // InstanceDetailWindow _detailWindow = new InstanceDetailWindow();
+        private void ConsturctDetailWindow()
+        {
+            _detailWindow.DataContext = new InstanceDetailViewModel();
 
-        //private void ConsturctDetailWindow()
-        //{
-        //    _detailWindow.DataContext = new InstanceDetailViewModel(_canvasViewModel.SelectedInstance, _canvasViewModel.PropertiesView);
-        //    _mainWindow.CanvasControl.DetailViewWindow = _detailWindow;
-        //}
+            _canvasViewModel.PropertyChanged -= SelectedInstanceChanged;
+            _canvasViewModel.PropertyChanged += SelectedInstanceChanged;
 
-        //private void CloseDetailWindow()
-        //{
-        //    _detailWindow.IsProgrammaticallyClosed = true;
-        //    _detailWindow.Close();
+            _detailWindow.Show();
+        }
 
-        //    _mainWindow.CanvasControl.DetailViewWindow = null;
-        //    _detailWindow = null;
-        //}
+        private void CloseDetailWindow()
+        {
+            _detailWindow.IsProgrammaticallyClosed = true;
+            _detailWindow.Close();
 
-        //_canvasViewModel.PropertyChanged -= SelectedInstanceChanged;
-        //_canvasViewModel.PropertyChanged += SelectedInstanceChanged;
+            _detailWindow = null;
+        }
 
-        //private void SelectedInstanceChanged(object sender, PropertyChangedEventArgs e)
-        //{
-        //    if (e.PropertyName == "SelectedInstance")
-        //    {
-        //        (_detailWindow.DataContext as InstanceDetailViewModel).Instance = (_canvasViewModel).SelectedInstance;
-        //    }
-        //}
+        private void SelectedInstanceChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "SelectedInstance")
+            {
+                (_detailWindow.DataContext as InstanceDetailViewModel).Instance = (_canvasViewModel).SelectedInstance;
+            }
+        }
     }
 }

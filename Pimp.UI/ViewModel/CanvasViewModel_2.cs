@@ -82,6 +82,20 @@ namespace Pimp.ViewModel
             }
         }
 
+        public ObservableCollection<PropertyModel> Properties { get; } = new ObservableCollection<PropertyModel>();
+
+        // Properties 컬렉션을 ListCollectionView로 감쌉니다.
+        private ListCollectionView _propertiesView;
+        public ListCollectionView PropertiesView
+        {
+            get { return _propertiesView; }
+            set
+            {
+                _propertiesView = value;
+                OnPropertyChanged(nameof(PropertiesView));
+            }
+        }
+
         public ObservableCollection<CanvasInstanceBaseModel> CanvasInstances { get; private set; } = new ObservableCollection<CanvasInstanceBaseModel>();
 
         public ObservableCollection<CanvasEdge> Edges { get; } = new ObservableCollection<CanvasEdge>();
@@ -197,7 +211,7 @@ namespace Pimp.ViewModel
             get => _selectedInstance;
             set
             {
-                if(value == null || _selectedInstance == value)
+                if(_selectedInstance == value)
                 {
                     return;
                 }
@@ -215,7 +229,7 @@ namespace Pimp.ViewModel
             }
 
             CanvasInstances.Remove(SelectedInstance);
-            _selectedInstance = null;
+            SelectedInstance = null;
         }
 
         private void SelectedInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)

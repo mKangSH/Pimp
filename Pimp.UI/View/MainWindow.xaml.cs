@@ -78,11 +78,11 @@ namespace Pimp
             }
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                (this.CanvasControl.DataContext as CanvasViewModel)?.CopySelectedInstance();
+                (this.CanvasControl.DataContext as CanvasViewModel_2)?.CopySelectedInstance();
             }
             else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                (this.CanvasControl.DataContext as CanvasViewModel)?.PasteCopiedInstance();
+                (this.CanvasControl.DataContext as CanvasViewModel_2)?.PasteCopiedInstance();
             }
         }
     }

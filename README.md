@@ -8,6 +8,7 @@ Asset을 좌클릭 Drag And Drop으로 Canvas에 배치한 이후
 
 !!! 알려진 문제점 !!!    
 Pimp.CSharpAssembly의 종속성 어셈블리를 삭제하고 다시 Pimp.Common의 dll을 참조하여 재빌드 해야함. (6/30 발견)      
+Pimp.CSharpAssembly는 D:\CodeProject\ 경로에 배치해야 정상 동작함.       
 Canvas에 AddInstance 후 Delete 할 때 Remove가 정확하게 되지 않아 메모리에 잔존하여 Assembly Unload가 불가능하다. (6/30 발견) 1차 수정 목표
 
 Canvas 관련 함수 수정 진행 중

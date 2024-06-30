@@ -6,12 +6,12 @@
              xmlns:UI="clr-namespace:Pimp.UI"
              Focusable="True"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800"   
-             MouseDoubleClick="Canvas_MouseDoubleClick">
+             d:DesignHeight="450" d:DesignWidth="800">
+             <!--MouseDoubleClick="Canvas_MouseDoubleClick"-->
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../UI/Resources/CanvasInstanceTemplate.xaml"/>
+                <ResourceDictionary Source="../UI/Resources/CanvasInstanceTemplate.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <UI:CanvasTemplateSelector x:Key="CanvasTemplateSelector"
                           ImageTemplate="{StaticResource CanvasImageTemplate}" 
@@ -21,8 +21,13 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Canvas x:Name="canvas" Width="10000" Height="10000" Background="#3A3A3A"
+            MouseMove="Canvas_MouseMove"
             MouseLeftButtonDown="Canvas_MouseLeftButtonDown" 
-            MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
+            MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
+            MouseRightButtonDown="Canvas_MouseRightButtonDown"
+            MouseRightButtonUp="Canvas_MouseRightButtonUp"
+            MouseLeave="Canvas_MouseLeave">
+        <!-- 그리드 라인을 그리는 Path -->
         <ItemsControl ItemsSource="{Binding GridLines}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -53,6 +58,30 @@
                     <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
                 </Style>
             </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+
+        <!-- 간선을 그리는 Path -->
+        <ItemsControl ItemsSource="{Binding Edges}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Path Stroke="AliceBlue" StrokeThickness="3">
+                        <Path.Data>
+                            <PathGeometry>
+                                <PathFigure StartPoint="{Binding StartPoint}">
+                                    <BezierSegment Point1="{Binding ControlPoint1}"
+                                           Point2="{Binding ControlPoint2}"
+                                           Point3="{Binding EndPoint}"/>
+                                </PathFigure>
+                            </PathGeometry>
+                        </Path.Data>
+                    </Path>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
         </ItemsControl>
     </Canvas>
 </UserControl>

@@ -80,6 +80,13 @@ namespace Pimp.View
 
                 _lastMousePosition = mousePosition;
             }
+
+            if (_startInstance != null && tempLine != null)
+            {
+                var mousePosition = e.GetPosition(canvas);
+                tempLine.X2 = mousePosition.X;
+                tempLine.Y2 = mousePosition.Y;
+            }
         }
 
         private CanvasInstanceBaseModel GetInstanceAtPosition(Point position)
@@ -102,14 +109,98 @@ namespace Pimp.View
                    point.Y >= instance.Y && point.Y <= instance.Y + 130/*instance.Height*/;
         }
 
-        private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private Line tempLine;
+        private CanvasInstanceBaseModel _startInstance = null;
+
+        private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             var mousePosition = e.GetPosition(canvas);
+
             var instance = GetInstanceAtPosition(mousePosition);
-            if (instance != null)
+            if (instance == null)
             {
-                
+                mousePosition = e.GetPosition(ScrollViewer);
+                // 드래그를 시작합니다.
+                _dragStartPoint = mousePosition;
+
+                return;
+            }
+
+            if (instance is CanvasResultModel)
+            {
+                return;
+            }
+
+            _startInstance = instance;
+            // Line을 생성하고 속성을 설정합니다.
+            tempLine = new Line
+            {
+                Stroke = Brushes.LightSteelBlue,
+                X1 = _startInstance.X + 50,
+                Y1 = _startInstance.Y + 50,
+                X2 = mousePosition.X,
+                Y2 = mousePosition.Y
+            };
+
+            // Line을 Canvas에 추가합니다.
+            canvas.Children.Add(tempLine);
+        }
+
+        private void Canvas_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_dragStartPoint.HasValue)
+            {
+                _dragStartPoint = null;
+
+                return;
+            }
+
+            var mousePosition = e.GetPosition(canvas);
+            var endInstance = GetInstanceAtPosition(mousePosition);
+
+            if (_startInstance == null || endInstance == null)
+            {
+                canvas.Children.Remove(tempLine);
+                tempLine = null;
+                _startInstance = null;
+                return;
+            }
+
+            canvas.Children.Remove(tempLine);
+            tempLine = null;
+            _startInstance = null;
+        }
+
+        private void Canvas_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (_dragStartPoint.HasValue)
+            {
+                _dragStartPoint = null;
+
+                return;
+            }
+
+            if (tempLine != null)
+            {
+                canvas.Children.Remove(tempLine);
+                tempLine = null;
+                _startInstance = null;
+            }
+
+            if (_draggedInstance != null)
+            {
+                _draggedInstance.ZIndex = 0; // 또는 다른 낮은 값
+                _draggedInstance = null;
             }
         }
+        //private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        //{
+        //    var mousePosition = e.GetPosition(canvas);
+        //    var instance = GetInstanceAtPosition(mousePosition);
+        //    if (instance != null)
+        //    {
+
+        //    }
+        //}
     }
 }

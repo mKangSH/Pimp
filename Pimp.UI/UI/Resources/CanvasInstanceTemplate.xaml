@@ -23,8 +23,7 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CanvasImageTemplate">
-        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A"
-                BorderBrush="{Binding IsHighlighted, Converter={StaticResource BorderColorConverter}}">
+        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A">
             <Grid x:Name="InstanceGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="22" />
@@ -50,8 +49,7 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CanvasOneInputModuleTemplate">
-        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A"
-                BorderBrush="{Binding IsHighlighted, Converter={StaticResource BorderColorConverter}}">
+        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A">
             <Grid x:Name="InstanceGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="22"/>
@@ -80,8 +78,7 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CanvasMultiInputModuleTemplate">
-        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A"
-            BorderBrush="{Binding IsHighlighted, Converter={StaticResource BorderColorConverter}}">
+        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A">
             <Grid x:Name="InstanceGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="22"/>
@@ -115,8 +112,7 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CanvasResultTemplate">
-        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A"
-            BorderBrush="{Binding IsHighlighted, Converter={StaticResource BorderColorConverter}}">
+        <Border BorderThickness="2" CornerRadius="15" Background="#1A1A1A">
             <Grid x:Name="InstanceGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="22" />

@@ -29,7 +29,7 @@ namespace Pimp
     public partial class App : Application
     {
         MainWindow _mainWindow = new MainWindow();
-        CanvasViewModel _canvasViewModel;
+        CanvasViewModel_2 _canvasViewModel;
         
         AddCSharpFileDialogWindow _dialog = new AddCSharpFileDialogWindow();
 
@@ -40,7 +40,7 @@ namespace Pimp
             // 어플리케이션 도메인에서 어셈블리 로드
             Application.Current.MainWindow = _mainWindow;
 
-            _canvasViewModel = new CanvasViewModel();
+            _canvasViewModel = new CanvasViewModel_2();
 
             // Show부터 하지 않으면 ScrollViewer의 ScrollToVerticalOffset, ScrollToHorizontalOffset가 동작하지 않음.
             _mainWindow.Show();
@@ -52,7 +52,7 @@ namespace Pimp
             _mainWindow.DataContext = new MainWindowViewModel(_canvasViewModel);
 
             _mainWindow.CanvasControl.DataContext = _canvasViewModel;
-            _mainWindow.CanvasInstanceControl.DataContext = _canvasViewModel;
+            // _mainWindow.CanvasInstanceControl.DataContext = _canvasViewModel;
 
             // TODO : Resource Manager 클래스를 이용해야 함.
             _mainWindow.FileListControl.DataContext = new FileViewModel(@"D:\CodeProject\Pimp.CSharpAssembly\");
@@ -60,7 +60,7 @@ namespace Pimp
             _mainWindow.ScrollViewer.ScrollToVerticalOffset(_mainWindow.ScrollViewer.ScrollableHeight / 2);
             _mainWindow.ScrollViewer.ScrollToHorizontalOffset(_mainWindow.ScrollViewer.ScrollableWidth / 2);
 
-            _mainWindow.CanvasControl.ScrollViewer = _mainWindow.ScrollViewer;
+            // _mainWindow.CanvasControl.ScrollViewer = _mainWindow.ScrollViewer;
             _mainWindow.LoggerControl.DataContext = new LoggerViewModel(Logger.Instance);
 
             var addCSharpFileDialogViewModel = new AddCSharpFileDialogViewModel((_mainWindow.FileListControl.DataContext as FileViewModel));

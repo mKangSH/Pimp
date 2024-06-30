@@ -21,9 +21,9 @@ namespace Pimp.ViewModel
         public ICommand AssemblyLoadCommand { get; }
 
         // CanvasViewModel의 인스턴스를 추가합니다.
-        public CanvasViewModel CanvasViewModel { get; }
+        public CanvasViewModel_2 CanvasViewModel { get; }
 
-        public MainWindowViewModel(CanvasViewModel canvasViewModel)
+        public MainWindowViewModel(CanvasViewModel_2 canvasViewModel)
         {
             // 주입받은 CanvasViewModel을 사용합니다.
             CanvasViewModel = canvasViewModel;

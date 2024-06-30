@@ -45,7 +45,7 @@ namespace Pimp
                 // 이 메서드는 ViewModel에서 구현해야 합니다.
                 Point dropPosition = e.GetPosition(sender as IInputElement);
 
-                (this.CanvasControl.DataContext as CanvasViewModel)?.AddInstanceToCanvas(file, dropPosition);
+                (this.CanvasControl.DataContext as CanvasViewModel_2)?.AddInstanceToCanvas(file, dropPosition);
             }
         }
 
@@ -54,7 +54,7 @@ namespace Pimp
             if (e.Key == Key.Delete)
             {
                 var originalSourceType = (e.OriginalSource as Control)?.GetType();
-
+                
                 if (originalSourceType == null)
                 {
                     return;
@@ -71,7 +71,7 @@ namespace Pimp
                 }
                 else if (originalSourceType == typeof(ListBoxItem) || originalSourceType == typeof(ScrollViewer))
                 {
-                    (this.CanvasControl.DataContext as CanvasViewModel)?.RemoveSelectedInstance();
+                    (this.CanvasControl.DataContext as CanvasViewModel_2)?.RemoveSelectedInstance();
                     //this.CanvasControl.DetailViewWindow.Hide();
                 }
                 // Add more checks as needed

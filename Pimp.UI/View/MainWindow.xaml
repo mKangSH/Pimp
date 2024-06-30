@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pimp"
         xmlns:view="clr-namespace:Pimp.View"
+        xmlns:test="clr-namespace:Pimp.UI.View.TestCode"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920">
@@ -48,13 +49,13 @@
                 <Border BorderBrush="Black" BorderThickness="3" CornerRadius="10" Margin="2,2,2,2" Grid.Column="0" Grid.Row="0">
                     <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" PanningMode="None"
                               PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                        <view:CanvasControl x:Name="CanvasControl" Margin="2" Drop="CanvasControl_Drop" AllowDrop="True"/>
+                        <test:CanvasControl_2 x:Name="CanvasControl" Margin="2" Drop="CanvasControl_Drop" AllowDrop="True"/>
                     </ScrollViewer>
                 </Border>
                 
-                <Border BorderBrush="Black" BorderThickness="3" CornerRadius="10" Margin="2,2,2,2" Grid.Column="2" Grid.Row="0">
+                <!--<Border BorderBrush="Black" BorderThickness="3" CornerRadius="10" Margin="2,2,2,2" Grid.Column="2" Grid.Row="0">
                     <view:CanvasInstanceControl x:Name="CanvasInstanceControl" Margin="2"/>
-                </Border>
+                </Border>-->
 
                 <Border BorderBrush="Black" BorderThickness="3" CornerRadius="10" Margin="2,2,2,2" Grid.Column="0" Grid.Row="2">
                     <view:FileListControl x:Name="FileListControl" Margin="2"/>

@@ -30,13 +30,13 @@ namespace Pimp.ViewModel
 
             SaveCommand = new RelayCommand(() =>
             { 
-                canvasViewModel.SaveInstances("D:\\Pimp\\Instance.xml");  
-                canvasViewModel.SaveEdges("D:\\Pimp\\Edges.xml");
+                //canvasViewModel.SaveInstances("D:\\Pimp\\Instance.xml");  
+                //canvasViewModel.SaveEdges("D:\\Pimp\\Edges.xml");
             });
 
             LoadCommand = new RelayCommand(() => 
             { 
-                canvasViewModel.LoadAllInstances("D:\\Pimp\\Instance.xml", "D:\\Pimp\\Edges.xml"); 
+                //canvasViewModel.LoadAllInstances("D:\\Pimp\\Instance.xml", "D:\\Pimp\\Edges.xml"); 
             });
 
             AssemblyUnloadCommand = new RelayCommand(() =>

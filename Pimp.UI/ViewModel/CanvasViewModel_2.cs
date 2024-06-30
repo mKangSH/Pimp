@@ -102,6 +102,22 @@ namespace Pimp.ViewModel
 
         public ObservableCollection<GridLine> GridLines { get; } = new ObservableCollection<GridLine>();
 
+        private CanvasInstanceBaseModel _selectedInstance;
+        public CanvasInstanceBaseModel SelectedInstance
+        {
+            get => _selectedInstance;
+            set
+            {
+                if (_selectedInstance == value)
+                {
+                    return;
+                }
+
+                _selectedInstance = value;
+                OnPropertyChanged(nameof(SelectedInstance));
+            }
+        }
+
         public CanvasViewModel_2()
         {
             for (int i = 0; i < 1000; i++)
@@ -205,22 +221,6 @@ namespace Pimp.ViewModel
             }
         }
 
-        private CanvasInstanceBaseModel _selectedInstance;
-        public CanvasInstanceBaseModel SelectedInstance
-        {
-            get => _selectedInstance;
-            set
-            {
-                if(_selectedInstance == value)
-                {
-                    return;
-                }
-
-                _selectedInstance = value;
-                OnPropertyChanged(nameof(SelectedInstance));
-            }
-        }
-
         public void RemoveSelectedInstance()
         {
             if (SelectedInstance == null)
@@ -228,82 +228,33 @@ namespace Pimp.ViewModel
                 return;
             }
 
+            // 선택한 인스턴스와 연결된 간선을 찾아 제거합니다.
+            var connectedEdges = Edges.Where(edge => edge.Start == _selectedInstance || edge.End == _selectedInstance).ToList();
+            foreach (var edge in connectedEdges)
+            {
+                Edges.Remove(edge);
+            }
+
             CanvasInstances.Remove(SelectedInstance);
             SelectedInstance = null;
         }
 
-        private void SelectedInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            
-        }
-
-        private void PropertyModuleModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            
-        }
-
-        private void PropertyModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            
-        }
-
         public void RemoveAllInstances()
         {
-            
-        }
-
-        public void ClearProperties()
-        {
-
-        }
-
-        public void SaveInstances(string path)
-        {
-        }
-
-        public void SaveEdges(string path)
-        {
-            
-        }
-
-        private SerializableDictionary<string, List<PropertyModel>> _propertiesForSerialization = new SerializableDictionary<string, List<PropertyModel>>();
-        public void SaveProperties(string path)
-        {
-            
-        }
-
-        private void LoadProperties(string path)
-        {
-            
-        }
-
-        List<CanvasInstanceBaseModel> _exceptionInstances = new List<CanvasInstanceBaseModel>();
-        public void LoadAllInstances(string instancePath, string edgePath)
-        {
-            
-        }
-
-        private void LoadInstances(string path)
-        {
-            
-        }
-
-        private void LoadEdges(string path)
-        {
-            
-        }
-
-        public void RemoveAllEdges()
-        {
-            
+            CanvasInstances.Clear();
+            Edges.Clear();
+            SelectedInstance = null;
         }
 
         public void AddEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
         {
+            var edge = new CanvasEdge(start, end);
+            Edges.Add(edge);
         }
 
-        public void RemoveEdge(CanvasEdge edge)
+        public void RemoveAllEdges()
         {
+            Edges.Clear();
         }
 
         private CanvasInstanceBaseModel _copiedInstance;
@@ -326,5 +277,17 @@ namespace Pimp.ViewModel
             bitmap.EndInit();
             return bitmap;
         }
+
+        private SerializableDictionary<string, List<PropertyModel>> _propertiesForSerialization = new SerializableDictionary<string, List<PropertyModel>>();
+        public void SaveProperties(string path)
+        {
+
+        }
+
+        private void LoadProperties(string path)
+        {
+
+        }
+
     }
 }

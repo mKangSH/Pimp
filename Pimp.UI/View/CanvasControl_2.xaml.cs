@@ -166,6 +166,44 @@ namespace Pimp.View
                 return;
             }
 
+            var canvasViewModel = DataContext as CanvasViewModel_2;
+            if (endInstance is CanvasOneInputModuleModel && _startInstance != endInstance)
+            {
+                // OneInputModule의 Input은 1개이므로 이미 연결된 경우 더 이상 연결할 수 없습니다.
+                if ((endInstance as CanvasOneInputModuleModel).CanConnect)
+                {
+                    (endInstance as CanvasOneInputModuleModel).CanConnect = false;
+                    _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
+                    _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
+                    canvasViewModel.AddEdge(_startInstance, endInstance);
+
+                    (endInstance as CanvasOneInputModuleModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
+                }
+            }
+            else if (endInstance is CanvasMultiInputModuleModel && _startInstance != endInstance)
+            {
+                // TODO : MultiInputModuleModel 정확한 동작 기입 필요
+                _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
+                _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
+                canvasViewModel.AddEdge(_startInstance, endInstance);
+
+                (endInstance as CanvasMultiInputModuleModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
+            }
+            else if (endInstance is CanvasResultModel && _startInstance != endInstance)
+            {
+                // 같은 선을 2개 연결하지 않도록 방지합니다.
+                if ((endInstance as CanvasResultModel).ResultList.ContainsKey(_startInstance.Name) == false)
+                {
+                    _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
+                    _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
+                    _startInstance.NameChanged -= (endInstance as CanvasResultModel).ParentNameChanged;
+                    _startInstance.NameChanged += (endInstance as CanvasResultModel).ParentNameChanged;
+
+                    canvasViewModel.AddEdge(_startInstance, endInstance);
+                    (endInstance as CanvasResultModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
+                }
+            }
+
             canvas.Children.Remove(tempLine);
             tempLine = null;
             _startInstance = null;

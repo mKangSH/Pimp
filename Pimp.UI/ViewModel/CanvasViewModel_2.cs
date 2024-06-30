@@ -23,6 +23,12 @@ using System.Xml.Serialization;
 
 namespace Pimp.ViewModel
 {
+    /// <summary>
+    /// CanvasViewModel Version 2
+    /// DLL Load, Unload 테스트용 클래스
+    /// 현재 SelectedInstance 및 CanvasIntances에서 인스턴스 삭제 후 DLL 언로드 테스트 정상 수행 확인 완료
+    /// TODO : Resource Manager 클래스를 이용해야 함.
+    /// </summary>
     public class CanvasViewModel_2 : INotifyPropertyChanged
     {
         private readonly static SolidColorBrush BlackBrush = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0));
@@ -113,10 +119,9 @@ namespace Pimp.ViewModel
 
         public void AddInstanceToCanvas(FileModel file, Point point)
         {
-            var extension = file.FileExtension.ToLower();
             var className = Path.GetFileNameWithoutExtension(file.FileName);
 
-            if (extension == ".jpg" || extension == ".png" || extension == ".gif" || extension == ".bmp")
+            if (file.FileType == FileType.Image)
             {
                 var instance = new CanvasImageModel
                 {
@@ -130,7 +135,7 @@ namespace Pimp.ViewModel
                 };
                 AddInstance(instance);
             }
-            else if (extension == ".cs" && file.FilePath.Contains("Modules"))
+            else if (file.FileType == FileType.CSharp && file.FilePath.Contains("Modules"))
             {
                 object module = null;
                 try
@@ -172,7 +177,7 @@ namespace Pimp.ViewModel
                     AddInstance(instance);
                 }
             }
-            else if (extension == ".cs" && file.FilePath.Contains("Results"))
+            else if (file.FileType == FileType.CSharp && file.FilePath.Contains("Results"))
             {
                 var instance = new CanvasResultModel
                 {
@@ -186,20 +191,31 @@ namespace Pimp.ViewModel
             }
         }
 
-        public void AddEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
+        private CanvasInstanceBaseModel _selectedInstance;
+        public CanvasInstanceBaseModel SelectedInstance
         {
-            var edge = new CanvasEdge(start, end);
-            Edges.Add(edge);
-        }
+            get => _selectedInstance;
+            set
+            {
+                if(value == null || _selectedInstance == value)
+                {
+                    return;
+                }
 
-        public void RemoveEdge(CanvasEdge edge)
-        {
-            Edges.Remove(edge);
+                _selectedInstance = value;
+                OnPropertyChanged(nameof(SelectedInstance));
+            }
         }
 
         public void RemoveSelectedInstance()
         {
-            CanvasInstances.RemoveAt(0);
+            if (SelectedInstance == null)
+            {
+                return;
+            }
+
+            CanvasInstances.Remove(SelectedInstance);
+            _selectedInstance = null;
         }
 
         private void SelectedInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -268,6 +284,13 @@ namespace Pimp.ViewModel
             
         }
 
+        public void AddEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
+        {
+        }
+
+        public void RemoveEdge(CanvasEdge edge)
+        {
+        }
 
         private CanvasInstanceBaseModel _copiedInstance;
 

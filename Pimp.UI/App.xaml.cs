@@ -60,7 +60,7 @@ namespace Pimp
             _mainWindow.ScrollViewer.ScrollToVerticalOffset(_mainWindow.ScrollViewer.ScrollableHeight / 2);
             _mainWindow.ScrollViewer.ScrollToHorizontalOffset(_mainWindow.ScrollViewer.ScrollableWidth / 2);
 
-            // _mainWindow.CanvasControl.ScrollViewer = _mainWindow.ScrollViewer;
+            _mainWindow.CanvasControl.ScrollViewer = _mainWindow.ScrollViewer;
             _mainWindow.LoggerControl.DataContext = new LoggerViewModel(Logger.Instance);
 
             var addCSharpFileDialogViewModel = new AddCSharpFileDialogViewModel((_mainWindow.FileListControl.DataContext as FileViewModel));

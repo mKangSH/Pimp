@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pimp"
         xmlns:view="clr-namespace:Pimp.View"
-        xmlns:test="clr-namespace:Pimp.UI.View.TestCode"
+        xmlns:test="clr-namespace:Pimp.View.TestCode"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920">

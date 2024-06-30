@@ -199,60 +199,6 @@ namespace Pimp.ViewModel
                     SelectedFolder = folder;
                 }
             }
-            //switch(changeType)
-            //{
-            //    case FolderChangeType.Created:
-            //        {
-            //            var folder = new FolderModel
-            //            {
-            //                FolderName = Path.GetFileName(path),
-            //                FolderPath = path
-            //            };
-            //            Folders.Add(folder);
-            //        }
-            //        break;
-            //    case FolderChangeType.Renamed:
-            //        {
-            //            bool recovered = false;
-            //            if(SelectedFolder.FolderPath == oldPath)
-            //            {
-            //                recovered = true;
-            //                SelectedFolder = null;
-            //            }
-
-            //            var folder = Folders.First(f => f.FolderPath == oldPath);
-            //            Folders.Remove(folder);
-
-            //            folder.FolderName = Path.GetFileName(path);
-            //            folder.FolderPath = path;
-            //            Folders.Add(folder);
-
-            //            if(recovered)
-            //            {
-            //                SelectedFolder = folder;
-            //            }
-            //        }
-            //        break;
-            //    case FolderChangeType.Deleted:
-            //        {
-            //            if(SelectedFolder.FolderPath == path)
-            //            {
-            //                SelectedFolder = null;
-            //            }
-
-            //            if(Folders.Any(folder => folder.FolderPath == path))
-            //            {
-            //                var folder = Folders.First(folder => folder.FolderPath == path);
-            //                Folders.Remove(folder);
-            //            }
-
-            //            if(Folders.Count > 0)
-            //            {
-            //                SelectedFolder = Folders[0];
-            //            }
-            //        }
-            //        break;
-            //}
         }
 
         public void UpdateFiles()

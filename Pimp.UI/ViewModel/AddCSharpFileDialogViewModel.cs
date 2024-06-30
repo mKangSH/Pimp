@@ -13,6 +13,7 @@ namespace Pimp.ViewModel
 {
     public class AddCSharpFileDialogViewModel : INotifyPropertyChanged
     {
+        public event EventHandler HideDialogRequested;
         // INotifyPropertyChanged 구현
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -20,8 +21,6 @@ namespace Pimp.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event EventHandler HideDialogRequested;
 
         private FileViewModel _fileViewModel;
 
@@ -61,9 +60,20 @@ namespace Pimp.ViewModel
 
         private void AddCSharpFile(object obj)
         {
+            string template = GetTemplate(SelectedTemplate.Name, FileName);
+
+            // C# 파일을 추가하는 코드
+            string path = System.IO.Path.Combine(_fileViewModel.SelectedFolder.FolderPath, FileName + ".cs");
+            System.IO.File.WriteAllText(path, template, Encoding.UTF8);
+
+            HideDialogRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private string GetTemplate(string name, string fileName)
+        {
             string template;
 
-            switch (SelectedTemplate.Name)
+            switch (name)
             {
                 case "OneInputModule":
                     template = @"using OpenCvSharp.WpfExtensions;
@@ -80,9 +90,9 @@ using Pimp.Common.Log;
 
 namespace Pimp.CSharpAssembly.Modules
 {
-    class " + FileName + @" : OneInputBaseModule
+    class " + fileName + @" : OneInputBaseModule
     {
-        public " + FileName + @"()
+        public " + fileName + @"()
         {
             
         }
@@ -130,9 +140,9 @@ using Pimp.Common.Log;
 
 namespace Pimp.CSharpAssembly.Modules
 {
-    class " + FileName + @" : MultiInputBaseModule
+    class " + fileName + @" : MultiInputBaseModule
     {
-        public " + FileName + @"()
+        public " + fileName + @"()
         {
             
         }
@@ -169,11 +179,7 @@ namespace Pimp.CSharpAssembly.Modules
                     throw new Exception("Unknown template");
             }
 
-            // C# 파일을 추가하는 코드
-            string path = System.IO.Path.Combine(_fileViewModel.SelectedFolder.FolderPath, FileName + ".cs");
-            System.IO.File.WriteAllText(path, template, Encoding.UTF8);
-
-            HideDialogRequested?.Invoke(this, EventArgs.Empty);
+            return template;
         }
     }
 }

@@ -31,25 +31,6 @@ namespace Pimp.View
             InitializeComponent();
         }
 
-        public InstanceDetailWindow DetailViewWindow { get; set; }
-
-        private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var mousePosition = e.GetPosition(canvas);
-            var instance = GetInstanceAtPosition(mousePosition);
-            if (instance != null)
-            {
-                if (DetailViewWindow.Visibility == Visibility.Visible)
-                {
-
-                }
-                else
-                {
-                    DetailViewWindow.Show();
-                }
-            }
-        }
-
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var mousePosition = e.GetPosition(canvas);
@@ -228,7 +209,6 @@ namespace Pimp.View
             _startInstance = null;
         }
 
-        // 새로운 이벤트 핸들러 추가
         private void Canvas_MouseLeave(object sender, MouseEventArgs e)
         {
             if (_dragStartPoint.HasValue)
@@ -250,7 +230,23 @@ namespace Pimp.View
                 _draggedInstance.ZIndex = 0; // 또는 다른 낮은 값
                 _draggedInstance = null;
             }
-            
         }
+
+        //public InstanceDetailWindow DetailViewWindow { get; set; }
+
+        //private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        //{
+        //    var mousePosition = e.GetPosition(canvas);
+        //    var instance = GetInstanceAtPosition(mousePosition);
+        //    if (instance != null)
+        //    {
+        //        if (DetailViewWindow.Visibility == Visibility.Visible)
+        //        {
+        //            return;
+        //        }
+
+        //        DetailViewWindow.Show();
+        //    }
+        //}
     }
 }

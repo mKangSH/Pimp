@@ -72,7 +72,7 @@ namespace Pimp
                 else if (originalSourceType == typeof(ListBoxItem) || originalSourceType == typeof(ScrollViewer))
                 {
                     (this.CanvasControl.DataContext as CanvasViewModel)?.RemoveSelectedInstance();
-                    this.CanvasControl.DetailViewWindow.Hide();
+                    //this.CanvasControl.DetailViewWindow.Hide();
                 }
                 // Add more checks as needed
             }

@@ -67,6 +67,8 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,20,0">
                     <Button Command="{Binding SaveCommand}" Style="{StaticResource CircleButtonStyle}" Width="60" Height="60" Content="Save" Foreground="AliceBlue" FontSize="14"/>
                     <Button Command="{Binding LoadCommand}" Style="{StaticResource CircleButtonStyle}" Width="60" Height="60" Content="Load" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
+                    <Button Command="{Binding AssemblyUnloadCommand}" Style="{StaticResource CircleButtonStyle}" Width="60" Height="60" Content="AUnload" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
+                    <Button Command="{Binding AssemblyLoadCommand}" Style="{StaticResource CircleButtonStyle}" Width="60" Height="60" Content="ALoad" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>

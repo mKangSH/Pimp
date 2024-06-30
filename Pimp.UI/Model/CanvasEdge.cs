@@ -16,33 +16,6 @@ namespace Pimp.Model
         private static readonly double StartPointOffsetX = 131;
         private static readonly double EndPointOffsetX = 13;
 
-        // INotifyPropertyChanged 구현
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public CanvasEdge()
-        {
-
-        }
-
-        public CanvasEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
-        {
-            Start = start;
-            End = end;
-
-            StartPoint = new Point(Start.X + StartPointOffsetX, Start.Y + PointOffsetY);
-            EndPoint = new Point(End.X + EndPointOffsetX, End.Y + PointOffsetY);
-
-            double offset = CalculateXDistance(StartPoint.X, EndPoint.X);
-
-            ControlPoint1 = new Point(StartPoint.X + offset, StartPoint.Y);
-            ControlPoint2 = new Point(EndPoint.X - offset, EndPoint.Y);
-        }
-
         private CanvasInstanceBaseModel _start;
         public CanvasInstanceBaseModel Start
         {
@@ -87,6 +60,20 @@ namespace Pimp.Model
                     }
                 }
             }
+        }
+
+        public CanvasEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
+        {
+            Start = start;
+            End = end;
+
+            StartPoint = new Point(Start.X + StartPointOffsetX, Start.Y + PointOffsetY);
+            EndPoint = new Point(End.X + EndPointOffsetX, End.Y + PointOffsetY);
+
+            double offset = CalculateXDistance(StartPoint.X, EndPoint.X);
+
+            ControlPoint1 = new Point(StartPoint.X + offset, StartPoint.Y);
+            ControlPoint2 = new Point(EndPoint.X - offset, EndPoint.Y);
         }
 
         private Point _startPoint;
@@ -163,6 +150,19 @@ namespace Pimp.Model
         public double CalculateXDistance(double start, double end)
         {
             return Math.Abs(end - start);
+        }
+
+        // INotifyPropertyChanged 구현
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public CanvasEdge()
+        {
+
         }
     }
 }

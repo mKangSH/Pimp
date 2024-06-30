@@ -50,8 +50,8 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
-                        <Image Source="{Binding FileIcon}" Width="60" Height="60" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding FileName}" Margin="5,0,0,0" Width="75" TextAlignment="Center"/>
+                        <Image Source="{Binding FileIcon}" Width="60" Height="60" Stretch="Uniform"/>
+                        <TextBlock Text="{Binding FileName}" Margin="5,0,0,0" Width="75"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

@@ -59,37 +59,6 @@ namespace Pimp.Model
             }
         }
 
-        private void LoadFileIcon()
-        {
-            if(string.IsNullOrEmpty(FilePath))
-            {
-                return;
-            }
-
-            if (File.Exists(FilePath))
-            {
-                using (var icon = System.Drawing.Icon.ExtractAssociatedIcon(FilePath))
-                {
-                    _fileIcon = Imaging.CreateBitmapSourceFromHIcon(
-                        icon.Handle,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                }
-            }
-            else if (Directory.Exists(FilePath))
-            {
-                SHFILEINFO shinfo = new SHFILEINFO();
-                IntPtr hImgSmall = SHGetFileInfo(FilePath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), (uint)(0x100 | 0x0));
-
-                Icon icon = Icon.FromHandle(shinfo.hIcon);
-
-                _fileIcon = Imaging.CreateBitmapSourceFromHIcon(
-                    icon.Handle,
-                    Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-            }
-        }
-
         [XmlIgnore]
         public string FileContent
         {
@@ -119,6 +88,37 @@ namespace Pimp.Model
                     default:
                         return FileType.Other;
                 }
+            }
+        }
+
+        private void LoadFileIcon()
+        {
+            if (string.IsNullOrEmpty(FilePath))
+            {
+                return;
+            }
+
+            if (File.Exists(FilePath))
+            {
+                using (var icon = System.Drawing.Icon.ExtractAssociatedIcon(FilePath))
+                {
+                    _fileIcon = Imaging.CreateBitmapSourceFromHIcon(
+                        icon.Handle,
+                        Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+                }
+            }
+            else if (Directory.Exists(FilePath))
+            {
+                SHFILEINFO shinfo = new SHFILEINFO();
+                IntPtr hImgSmall = SHGetFileInfo(FilePath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), (uint)(0x100 | 0x0));
+
+                Icon icon = Icon.FromHandle(shinfo.hIcon);
+
+                _fileIcon = Imaging.CreateBitmapSourceFromHIcon(
+                    icon.Handle,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
             }
         }
     }

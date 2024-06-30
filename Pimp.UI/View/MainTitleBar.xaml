@@ -13,10 +13,19 @@
             <ColumnDefinition Width="AUTO"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" BorderBrush="Black" BorderThickness="2" Margin="5">
-            <Image Source="D:\CodeProject\ImageProcessing\Pimp.UI\pimp_Main2.ico" Width="30" Height="30"/>
-        </Border>
-        <Menu Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Background="Transparent" shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="15, 10, 0, 5">
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="AUTO"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" BorderBrush="Black" BorderThickness="2" Margin="5">
+                <Image Source="D:\CodeProject\ImageProcessing\Pimp.UI\pimp_Main2.ico" Width="30" Height="30"/>
+            </Border>
+            <TextBlock Grid.Column="1" Text="Pimp" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Margin="10, 0, 0, 0"/>
+        </Grid>
+        
+        <!--<Menu Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Background="Transparent" shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="15, 10, 0, 5">
             <MenuItem Header="File" VerticalAlignment="Center" FontWeight="Bold" FontSize="16">
                 <MenuItem Header="New"/>
                 <MenuItem Header="Open" />
@@ -29,8 +38,8 @@
                 <MenuItem Header="Copy"/>
                 <MenuItem Header="Paste"/>
             </MenuItem>
-            <!-- More menu items... -->
-        </Menu>
+            --><!-- More menu items... --><!--
+        </Menu>-->
 
         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" shell:WindowChrome.IsHitTestVisibleInChrome="True">
             <Button Width="40" Click="Minimize_Click" Background="Transparent" BorderThickness="0" FontSize="14">ㅡ

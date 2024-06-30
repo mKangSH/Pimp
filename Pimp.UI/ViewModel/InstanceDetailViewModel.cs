@@ -23,23 +23,25 @@ namespace Pimp.ViewModel
             get { return _instance; }
             set
             {
-                if (_instance != value)
+                if (_instance == value)
                 {
-                    if(value == null && _instance != null)
-                    {
-                        _instance.OutputBitmapSource = null;
-                        if (_instance is CanvasOneInputModuleModel oneInputModule)
-                        {
-                            oneInputModule.ModuleInterface = null;
-                        }
-                        else if (_instance is CanvasMultiInputModuleModel multiInputModule)
-                        {
-                            multiInputModule.ModuleInterface = null;
-                        }
-                    }
-                    _instance = value;
-                    OnPropertyChanged(nameof(Instance));
+                    return;
                 }
+
+                if(value == null && _instance != null)
+                {
+                    _instance.OutputBitmapSource = null;
+                    if (_instance is CanvasOneInputModuleModel oneInputModule)
+                    {
+                        oneInputModule.ModuleInterface = null;
+                    }
+                    else if (_instance is CanvasMultiInputModuleModel multiInputModule)
+                    {
+                        multiInputModule.ModuleInterface = null;
+                    }
+                }
+                _instance = value;
+                OnPropertyChanged(nameof(Instance));
             }
         }
 

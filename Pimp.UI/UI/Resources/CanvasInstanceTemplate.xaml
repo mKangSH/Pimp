@@ -7,8 +7,10 @@
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
     <DataTemplate x:Key="CanvasInstanceTemplate">
-        <Rectangle Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" Width="100" Height="100" Stroke="DarkCyan"
-                       Fill="{Binding OutputBitmapSource, Converter={StaticResource ImageToBrushConverter}}">
+        <Rectangle Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" Width="100" Height="100" Stroke="DarkCyan">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="{Binding OutputBitmapSource}" Stretch="Uniform"/>
+            </Rectangle.Fill>
         </Rectangle>
     </DataTemplate>
 

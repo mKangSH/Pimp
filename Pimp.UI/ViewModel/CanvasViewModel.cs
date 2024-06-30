@@ -3,6 +3,7 @@ using Pimp.Common.Command;
 using Pimp.Common.Interface;
 using Pimp.Common.Log;
 using Pimp.Model;
+using Pimp.UI.Manager;
 using Pimp.View;
 using System;
 using System.Collections.Generic;
@@ -22,8 +23,11 @@ using System.Xml.Serialization;
 
 namespace Pimp.ViewModel
 {
-    public class CanvasViewModel : INotifyPropertyChanged, ICanvasViewModel
+    public class CanvasViewModel : INotifyPropertyChanged
     {
+        private readonly static SolidColorBrush BlackBrush = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0));
+        private readonly static SolidColorBrush AliceBlueBrush = new SolidColorBrush(Color.FromArgb(70, 240, 248, 255));
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -145,8 +149,6 @@ namespace Pimp.ViewModel
 
         public ObservableCollection<GridLine> GridLines { get; } = new ObservableCollection<GridLine>();
 
-        private readonly static SolidColorBrush BlackBrush = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0));
-        private readonly static SolidColorBrush AliceBlueBrush = new SolidColorBrush(Color.FromArgb(70, 240, 248, 255));
         public CanvasViewModel()
         {
             PropertiesView = new ListCollectionView(Properties);
@@ -201,7 +203,7 @@ namespace Pimp.ViewModel
                 object module = null;
                 try
                 {
-                    module = Activator.CreateInstance(App.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                    //module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
                 }
                 catch
                 {
@@ -562,7 +564,7 @@ namespace Pimp.ViewModel
             // TODO : 동작이 너무 느린 경우 SelectedInstance 조회를 줄이는 방법을 찾아야 합니다.
             var lastSelectedInstance = SelectedInstance;
             _propertiesForSerialization.Clear();
-
+            
             foreach (var instance in Instances)
             {
                 SelectedInstance = instance;
@@ -689,15 +691,15 @@ namespace Pimp.ViewModel
                     {
                         var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
 
-                        var module = Activator.CreateInstance(App.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
-                        (instance as CanvasOneInputModuleModel).ModuleInterface = module as IOneInputModule;
+                        //var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        //(instance as CanvasOneInputModuleModel).ModuleInterface = module as IOneInputModule;
                     }
                     else if (instance is CanvasMultiInputModuleModel)
                     {
                         var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
 
-                        var module = Activator.CreateInstance(App.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
-                        (instance as CanvasMultiInputModuleModel).ModuleInterface = module as IMultiInputModule;
+                        //var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        //(instance as CanvasMultiInputModuleModel).ModuleInterface = module as IMultiInputModule;
                     }
                 }
                 catch

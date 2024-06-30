@@ -5,6 +5,13 @@
 
 Asset을 좌클릭 Drag And Drop으로 Canvas에 배치한 이후
 우클릭으로 Asset끼리 연결하면 Image에 연결된 모듈이 실시간으로 업데이트 된다.
+
+!!! 알려진 문제점 !!!
+Pimp.CSharpAssembly의 종속성 어셈블리를 삭제하고 다시 Pimp.Common의 dll을 참조하여 재빌드 해야함. (6/30 발견)
+Canvas에 AddInstance 후 Delete 할 때 Remove가 정확하게 되지 않아 메모리에 잔존하여 Assembly Unload가 불가능하다. (6/30 발견) 1차 수정 목표
+
+Canvas 관련 함수 수정 진행 중
+
 ### MainUI
 <img src="./Document/Main UI_2024_0505.png" title="px(픽셀) 크기 설정" alt="MainUI"></img><br/>
 
@@ -13,11 +20,7 @@ Asset을 좌클릭 Drag And Drop으로 Canvas에 배치한 이후
 **Framework : WPF, .NET Framework4.8 => .NET 8.0**   
 **Library : OpenCVSharp4.5.2.20210404**
 
-## 사용 방법 
-### 기본 조작 영상
-
-### Save And Load 영상
-
+## 사용 방법
 <span style="color:white;font-size:125%">**Module NameSpace :**</span>
 <span style="color:MediumPurple;font-size:125%">**namespace Pimp.CSharpAssembly.Modules**</span>    
 
@@ -37,12 +40,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Pimp.Common.Models;
+using Pimp.Common.Log;
 
 namespace Pimp.CSharpAssembly.Modules
 {
-    class {FileName} : BaseModule
+    class " + fileName + @" : OneInputBaseModule
     {
-        public {FileName}()
+        public " + fileName + @"()
         {
             
         }
@@ -51,16 +55,26 @@ namespace Pimp.CSharpAssembly.Modules
         {
             if (InputImage == null)
             {
+                OutputImage = null;
+                OverlayImage = null;
                 return;
             }
 
-            base.Run();
-            Mat inspectionMat = InputImage.ToMat();
-            Mat result = new Mat();
-            
-            // 여기에 코드를 작성하세요
+            try
+            {
+                Mat inspectionMat = InputImage.ToMat();
+                Mat result = new Mat();
+                // 여기에 코드를 작성하세요
 
-            OutputImage = result.ToBitmapSource();
+                OutputImage = result.ToBitmapSource();
+            }
+            catch (Exception ex)
+            {
+                var splitTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                Logger.Instance.AddLog($""{splitTrace[splitTrace.Length - 1]}{Environment.NewLine}{ex.Message}"");
+
+                OutputImage = InputImage;
+            }
         }
     }
 }"

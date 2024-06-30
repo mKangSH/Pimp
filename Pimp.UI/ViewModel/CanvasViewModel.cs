@@ -203,7 +203,7 @@ namespace Pimp.ViewModel
                 object module = null;
                 try
                 {
-                    //module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                    module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
                 }
                 catch
                 {
@@ -434,8 +434,6 @@ namespace Pimp.ViewModel
             }
             else if (_selectedInstance is CanvasMultiInputModuleModel multiInputModule)
             {
-                // TODO : multiInputModule의 동작 정의 필요
-
                 var propertyModel = (PropertyModel)sender;
                 var property = multiInputModule.ModuleInterface.GetType().GetProperty(propertyModel.Name);
 
@@ -691,15 +689,15 @@ namespace Pimp.ViewModel
                     {
                         var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
 
-                        //var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
-                        //(instance as CanvasOneInputModuleModel).ModuleInterface = module as IOneInputModule;
+                        var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        (instance as CanvasOneInputModuleModel).ModuleInterface = module as IOneInputModule;
                     }
                     else if (instance is CanvasMultiInputModuleModel)
                     {
                         var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
 
-                        //var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
-                        //(instance as CanvasMultiInputModuleModel).ModuleInterface = module as IMultiInputModule;
+                        var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        (instance as CanvasMultiInputModuleModel).ModuleInterface = module as IMultiInputModule;
                     }
                 }
                 catch

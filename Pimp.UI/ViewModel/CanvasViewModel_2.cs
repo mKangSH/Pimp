@@ -114,12 +114,51 @@ namespace Pimp.ViewModel
                 }
 
                 _selectedInstance = value;
+
+                if (_selectedInstance != null && value != null)
+                {
+                    UpdateProperties();
+                }
                 OnPropertyChanged(nameof(SelectedInstance));
+            }
+        }
+
+        private void UpdateProperties()
+        {
+            Properties.Clear();
+
+            var properties = _selectedInstance.GetType().GetProperties().Where(p => !Attribute.IsDefined(p, typeof(UIHiddenAttribute)));
+
+            foreach (var property in properties)
+            {
+                var propertyModel = new PropertyModel(property.Name, property.GetValue(_selectedInstance), property);
+                Properties.Add(propertyModel);
+            }
+
+            // _selectedInstance가 CanvasModuleModel 타입인 경우 ModuleInterface의 속성도 추가
+            if (_selectedInstance is CanvasOneInputModuleModel canvasOneInputModuleModel && canvasOneInputModuleModel.ModuleInterface != null)
+            {
+                var moduleInterfaceProperties = canvasOneInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                foreach (var property in moduleInterfaceProperties)
+                {
+                    var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasOneInputModuleModel.ModuleInterface), property);
+                    Properties.Add(propertyModel);
+                }
+            }
+            else if (_selectedInstance is CanvasMultiInputModuleModel canvasMultiInputModuleModel && canvasMultiInputModuleModel.ModuleInterface != null)
+            {
+                var moduleInterfaceProperties = canvasMultiInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                foreach (var property in moduleInterfaceProperties)
+                {
+                    var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasMultiInputModuleModel.ModuleInterface), property);
+                    Properties.Add(propertyModel);
+                }
             }
         }
 
         public CanvasViewModel_2()
         {
+            PropertiesView = new ListCollectionView(Properties);
             for (int i = 0; i < 1000; i++)
             {
                 if (i % 10 == 0)
@@ -232,11 +271,23 @@ namespace Pimp.ViewModel
             var connectedEdges = Edges.Where(edge => edge.Start == _selectedInstance || edge.End == _selectedInstance).ToList();
             foreach (var edge in connectedEdges)
             {
-                Edges.Remove(edge);
+                RemoveEdge(_selectedInstance, edge);
+            }
+
+            Properties.Clear();
+
+            if (SelectedInstance is CanvasOneInputModuleModel oneInputModuleModel)
+            {
+                oneInputModuleModel.ModuleInterface = null;
+            }
+            else if(SelectedInstance is CanvasMultiInputModuleModel multiInputModuleModel)
+            {
+                multiInputModuleModel.ModuleInterface = null;
             }
 
             CanvasInstances.Remove(SelectedInstance);
-            SelectedInstance = null;
+
+            PropertiesView.Refresh();
         }
 
         public void RemoveAllInstances()
@@ -250,6 +301,29 @@ namespace Pimp.ViewModel
         {
             var edge = new CanvasEdge(start, end);
             Edges.Add(edge);
+        }
+
+        public void RemoveEdge(CanvasInstanceBaseModel instance, CanvasEdge edge)
+        { 
+            if (edge.Start == instance)
+            {
+                edge.End.OutputBitmapSource = null;
+                edge.End.Run();
+            }
+
+            if (edge.End is CanvasOneInputModuleModel endModule)
+            {
+                endModule.CanConnect = true;
+            }
+
+            else if (edge.End is CanvasResultModel resultModule)
+            {
+                resultModule?.DeleteResult(instance.Name);
+                edge.Start.NameChanged -= resultModule.ParentNameChanged;
+            }
+
+            edge.Start.OutputBitmapSourceChanged -= edge.End.OnOutputBitmapSourceChanged;
+            Edges.Remove(edge);
         }
 
         public void RemoveAllEdges()
@@ -289,5 +363,11 @@ namespace Pimp.ViewModel
 
         }
 
+        public void ClearProperties()
+        {
+            Properties.Clear();
+
+            PropertiesView.Refresh();
+        }
     }
 }

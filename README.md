@@ -9,7 +9,15 @@ Asset을 좌클릭 Drag And Drop으로 Canvas에 배치한 이후
 !!! 알려진 문제점 !!!    
 Pimp.CSharpAssembly의 종속성 어셈블리를 삭제하고 다시 Pimp.Common의 dll을 참조하여 재빌드 해야함. (6/30 발견)      
 Pimp.CSharpAssembly는 D:\CodeProject\ 경로에 배치해야 정상 동작함.       
-Canvas에 AddInstance 후 Delete 할 때 Remove가 정확하게 되지 않아 메모리에 잔존하여 Assembly Unload가 불가능하다. (6/30 발견) 1차 수정 목표
+     
+Canvas에 AddInstance 후 Delete 할 때 Remove가 정확하게 되지 않아 메모리에 잔존하여 Assembly Unload가 불가능    
+ - Develop/Refactoring Branch에서 수정 진행중 (프로그램 기본 기능에 대하여 Unload 정상 작동 확인 완료)
+ - Branch Local 변경 사항
+     - Hight Lighting 기능 및 Converter 제어로 사용하던 wpf view 내부 동작 임시 비활성화
+     - Detail View 더블클릭 기능 임시 비활성화
+     - Save, Load, Instance copy, Instance Paste 직렬화와 연관된 동작 임시 비활성화
+     - CSharpAssembly 빌드 시 파일 감지하여 자동 DLL Load, Unload 기능 비활성화
+     - CSharpAssembly 중 GaussianBlurModule에서 Enum 내용 삭제 (Assembly 로드 시 메모리에 잔존)
 
 Canvas 관련 함수 수정 진행 중
 

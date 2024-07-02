@@ -112,19 +112,47 @@ namespace Pimp.ViewModel
                 {
                     return;
                 }
+                
+                if (value == null)
+                {
+                    _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
+                }
 
                 _selectedInstance = value;
-
-                if (_selectedInstance != null && value != null)
+                if(_selectedInstance != null)
                 {
                     UpdateProperties();
+                    _selectedInstance.PropertyChanged += SelectedInstance_PropertyChanged;
                 }
+                
                 OnPropertyChanged(nameof(SelectedInstance));
             }
         }
 
+        private void SelectedInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // SelectedInstance가 null인지 확인합니다.
+            if (SelectedInstance == null)
+            {
+                return;
+            }
+
+            var property = Properties.FirstOrDefault(p => p.Name == e.PropertyName);
+            if (property == null)
+            {
+                return;
+            }
+
+            property.Value = _selectedInstance.GetType().GetProperty(e.PropertyName).GetValue(_selectedInstance);
+        }
+
         private void UpdateProperties()
         {
+            foreach (var propertyModel in Properties)
+            {
+                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
+                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
+            }
             Properties.Clear();
 
             var properties = _selectedInstance.GetType().GetProperties().Where(p => !Attribute.IsDefined(p, typeof(UIHiddenAttribute)));
@@ -132,6 +160,7 @@ namespace Pimp.ViewModel
             foreach (var property in properties)
             {
                 var propertyModel = new PropertyModel(property.Name, property.GetValue(_selectedInstance), property);
+                propertyModel.PropertyChanged += PropertyModel_PropertyChanged;
                 Properties.Add(propertyModel);
             }
 
@@ -142,6 +171,7 @@ namespace Pimp.ViewModel
                 foreach (var property in moduleInterfaceProperties)
                 {
                     var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasOneInputModuleModel.ModuleInterface), property);
+                    propertyModel.PropertyChanged += PropertyModuleModel_PropertyChanged;
                     Properties.Add(propertyModel);
                 }
             }
@@ -151,8 +181,83 @@ namespace Pimp.ViewModel
                 foreach (var property in moduleInterfaceProperties)
                 {
                     var propertyModel = new PropertyModel(property.Name, property.GetValue(canvasMultiInputModuleModel.ModuleInterface), property);
+                    propertyModel.PropertyChanged += PropertyModuleModel_PropertyChanged;
                     Properties.Add(propertyModel);
                 }
+            }
+        }
+
+        private void PropertyModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != "Value")
+            {
+                return;
+            }
+
+            var propertyModel = (PropertyModel)sender;
+            var property = _selectedInstance.GetType().GetProperty(propertyModel.Name);
+            var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
+            property.SetValue(_selectedInstance, value);
+        }
+
+        private void PropertyModuleModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != "Value")
+            {
+                return;
+            }
+
+            if (_selectedInstance is CanvasOneInputModuleModel oneInputModule)
+            {
+                var propertyModel = (PropertyModel)sender;
+                var property = oneInputModule.ModuleInterface.GetType().GetProperty(propertyModel.Name);
+
+                var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
+                property.SetValue(oneInputModule.ModuleInterface, value);
+
+                // X, Y, ZIndex 속성은 모듈에 적용되지 않도록 함 (캔버스 이동 관련 Property)
+                if (property.Name == "X" || property.Name == "Y" || property.Name == "ZIndex")
+                {
+                    return;
+                }
+
+                oneInputModule.ModuleInterface.Run();
+                oneInputModule.OutputBitmapSource = oneInputModule.ModuleInterface.OutputImage;
+                if (oneInputModule.ModuleInterface.OverlayImage != null && oneInputModule.ModuleInterface.OverlayImage.Width > 0 && oneInputModule.ModuleInterface.OverlayImage.Height > 0)
+                {
+                    oneInputModule.OverlayBitmapSource = oneInputModule.ModuleInterface.OverlayImage.Clone();
+                }
+                else
+                {
+                    oneInputModule.OverlayBitmapSource = null;
+                }
+                oneInputModule.Run();
+            }
+            else if (_selectedInstance is CanvasMultiInputModuleModel multiInputModule)
+            {
+                var propertyModel = (PropertyModel)sender;
+                var property = multiInputModule.ModuleInterface.GetType().GetProperty(propertyModel.Name);
+
+                var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
+                property.SetValue(multiInputModule.ModuleInterface, value);
+
+                // X, Y, ZIndex 속성은 모듈에 적용되지 않도록 함 (캔버스 이동 관련 Property)
+                if (property.Name == "X" || property.Name == "Y" || property.Name == "ZIndex")
+                {
+                    return;
+                }
+
+                multiInputModule.ModuleInterface.Run();
+                multiInputModule.OutputBitmapSource = multiInputModule.ModuleInterface.OutputImage;
+                if (multiInputModule.ModuleInterface.OverlayImage != null && multiInputModule.ModuleInterface.OverlayImage.Width > 0 && multiInputModule.ModuleInterface.OverlayImage.Height > 0)
+                {
+                    multiInputModule.OverlayBitmapSource = multiInputModule.ModuleInterface.OverlayImage.Clone();
+                }
+                else
+                {
+                    multiInputModule.OverlayBitmapSource = null;
+                }
+                multiInputModule.Run();
             }
         }
 
@@ -274,8 +379,6 @@ namespace Pimp.ViewModel
                 RemoveEdge(_selectedInstance, edge);
             }
 
-            Properties.Clear();
-
             if (SelectedInstance is CanvasOneInputModuleModel oneInputModuleModel)
             {
                 oneInputModuleModel.ModuleInterface = null;
@@ -287,7 +390,7 @@ namespace Pimp.ViewModel
 
             CanvasInstances.Remove(SelectedInstance);
 
-            PropertiesView.Refresh();
+            ClearProperties();
         }
 
         public void RemoveAllInstances()
@@ -366,7 +469,6 @@ namespace Pimp.ViewModel
         public void ClearProperties()
         {
             Properties.Clear();
-
             PropertiesView.Refresh();
         }
     }

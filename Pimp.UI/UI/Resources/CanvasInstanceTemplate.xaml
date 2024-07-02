@@ -1,15 +1,18 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Pimp.UI">
-    
+
     <local:BorderColorConverter x:Key="BorderColorConverter"/>
-    <local:ImageToBrushConverter x:Key="ImageToBrushConverter"/>
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
     <DataTemplate x:Key="CanvasInstanceTemplate">
         <Rectangle Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" Width="100" Height="100" Stroke="DarkCyan">
             <Rectangle.Fill>
-                <ImageBrush ImageSource="{Binding OutputBitmapSource}" Stretch="Uniform"/>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <Image Source="{Binding OutputBitmapSource}" Stretch="Uniform"/>
+                    </VisualBrush.Visual>
+                </VisualBrush>
             </Rectangle.Fill>
         </Rectangle>
     </DataTemplate>

@@ -116,6 +116,7 @@ namespace Pimp.ViewModel
                 if (value == null)
                 {
                     _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
+                    _copiedInstance = null;
                 }
 
                 _selectedInstance = value;
@@ -123,6 +124,7 @@ namespace Pimp.ViewModel
                 {
                     UpdateProperties();
                     _selectedInstance.PropertyChanged += SelectedInstance_PropertyChanged;
+                    _copiedInstance = null;
                 }
                 
                 OnPropertyChanged(nameof(SelectedInstance));
@@ -584,12 +586,72 @@ namespace Pimp.ViewModel
 
         public void CopySelectedInstance()
         {
-
+            _copiedInstance = SelectedInstance;
         }
 
         public void PasteCopiedInstance()
         {
+            if (_copiedInstance == null)
+            {
+                return;
+            }
 
+            AddInstanceToCanvas(_copiedInstance.FileModel, new Point(_copiedInstance.X + 50, _copiedInstance.Y + 50));
+
+            var instance = CanvasInstances.Last();
+            if (instance is CanvasImageModel imageModel)
+            {
+
+            }
+            else if (instance is CanvasOneInputModuleModel oneInputModuleModel)
+            {
+                var copyInstance = (_copiedInstance as CanvasOneInputModuleModel);
+
+                if (oneInputModuleModel.ModuleInterface != null)
+                {
+                    var targetModuleInterfaceProperties = oneInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                    var copyModuleInterfaceProperties = copyInstance.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+
+                    foreach (var targetProperty in targetModuleInterfaceProperties)
+                    {
+                        var copyProperty = copyModuleInterfaceProperties.FirstOrDefault(p => p.Name == targetProperty.Name);
+                        if (copyProperty == null)
+                        {
+                            continue;
+                        }
+
+                        targetProperty.SetValue(oneInputModuleModel.ModuleInterface, copyProperty.GetValue(copyInstance.ModuleInterface));
+                    }
+                }
+            }
+            else if (instance is CanvasMultiInputModuleModel multiInputModuleModel)
+            {
+                var copyInstance = (_copiedInstance as CanvasMultiInputModuleModel);
+
+                if (multiInputModuleModel.ModuleInterface != null)
+                {
+                    var targetModuleInterfaceProperties = multiInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+                    var copyModuleInterfaceProperties = copyInstance.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
+
+                    foreach (var targetProperty in targetModuleInterfaceProperties)
+                    {
+                        var copyProperty = copyModuleInterfaceProperties.FirstOrDefault(p => p.Name == targetProperty.Name);
+                        if (copyProperty == null)
+                        {
+                            continue;
+                        }
+
+                        targetProperty.SetValue(multiInputModuleModel.ModuleInterface, copyProperty.GetValue(copyInstance.ModuleInterface));
+                    }
+                }
+            }
+            else if (instance is CanvasResultModel resultModel)
+            {
+                // TODO : 동작 정의 필요
+                var copyInstance = (_copiedInstance as CanvasResultModel);
+                resultModel.ImageFormat = copyInstance.ImageFormat;
+                resultModel.ResultPath = copyInstance.ResultPath;
+            }
         }
 
         public BitmapSource GetBitmapSource(string imagePath)

@@ -398,7 +398,7 @@ namespace Pimp.ViewModel
                 multiInputModuleModel.ModuleInterface = null;
             }
 
-            CanvasInstances.Remove(SelectedInstance);
+            CanvasInstances.Remove(_selectedInstance);
 
             ClearProperties();
         }
@@ -409,7 +409,7 @@ namespace Pimp.ViewModel
             var InstanceToRemove = CanvasInstances.ToList();
             foreach (var instance in InstanceToRemove)
             {
-                _selectedInstance = instance;
+                SelectedInstance = instance;
                 RemoveSelectedInstance();
             }
             

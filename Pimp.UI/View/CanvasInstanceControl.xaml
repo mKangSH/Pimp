@@ -39,8 +39,8 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <Border Grid.Column="1" BorderThickness="0.5" BorderBrush="DimGray" Margin="0,3,0,4">
+        <!--<Border Grid.Column="1" BorderThickness="0.5" BorderBrush="DimGray" Margin="0,3,0,4">
             <ItemsControl ItemsSource="{Binding PropertiesView}" ItemTemplateSelector="{StaticResource PropertyTemplateSelector}" Margin="10"/>
-        </Border>
+        </Border>-->
     </Grid>
 </UserControl>

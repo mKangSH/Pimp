@@ -230,14 +230,22 @@ namespace Pimp.View
                 _draggedInstance = null;
             }
         }
-        //private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        //{
-        //    var mousePosition = e.GetPosition(canvas);
-        //    var instance = GetInstanceAtPosition(mousePosition);
-        //    if (instance != null)
-        //    {
 
-        //    }
-        //}
+        public InstanceDetailWindow DetailViewWindow { get; set; }
+
+        private void Canvas_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var mousePosition = e.GetPosition(canvas);
+            var instance = GetInstanceAtPosition(mousePosition);
+            if (instance != null)
+            {
+                if (DetailViewWindow.Visibility == Visibility.Visible)
+                {
+                    return;
+                }
+
+                DetailViewWindow.Show();
+            }
+        }
     }
 }

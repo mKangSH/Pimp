@@ -49,6 +49,7 @@ namespace Pimp
             ConstructView();
 
             ConsturctDetailWindow();
+            _mainWindow.CanvasControl.DetailViewWindow = _detailWindow;
 
             DllManager.CanvasViewModel = _canvasViewModel;
             DllManager.InitFileSystemWatcher(GlobalConst.dllPath);

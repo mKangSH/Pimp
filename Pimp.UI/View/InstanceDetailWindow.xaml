@@ -33,6 +33,6 @@
         </Grid.ColumnDefinitions>
         <CheckBox Grid.Row="0" Content="Show Overlay" IsChecked="{Binding Instance.IsOverlayVisible}" HorizontalAlignment="Center"/>
         <ContentControl Grid.Row="1" Content="{Binding Instance}" ContentTemplate="{StaticResource CanvasDetailTemplate}" />
-        <ItemsControl Grid.Column="1" Grid.Row="1" ItemsSource="{Binding PropertiesView}" ItemTemplateSelector="{StaticResource PropertyTemplateSelector}" Margin="10"/>
+        <!--<ItemsControl Grid.Column="1" Grid.Row="1" ItemsSource="{Binding PropertiesView}" ItemTemplateSelector="{StaticResource PropertyTemplateSelector}" Margin="10"/>-->
     </Grid>
 </Window>

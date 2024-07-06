@@ -6,8 +6,8 @@
              xmlns:UI="clr-namespace:Pimp.UI"
              Focusable="True"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
-             <!--MouseDoubleClick="Canvas_MouseDoubleClick"-->
+             d:DesignHeight="450" d:DesignWidth="800"
+             MouseDoubleClick="Canvas_MouseDoubleClick">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

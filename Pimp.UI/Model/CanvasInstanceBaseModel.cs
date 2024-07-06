@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
 
@@ -111,6 +112,7 @@ namespace Pimp.Model
             }
         }
 
+        [NonSerialized]
         private bool _isHighlighted;
         [UIHidden, XmlIgnore]
         public bool IsHighlighted
@@ -122,7 +124,31 @@ namespace Pimp.Model
                 {
                     _isHighlighted = value;
                     OnPropertyChanged(nameof(IsHighlighted));
+                    OnPropertyChanged(nameof(InstanceBorderBrush));
                 }
+            }
+        }
+
+        private static SolidColorBrush _highlightedBrush = new SolidColorBrush(Colors.MediumPurple);
+        private static SolidColorBrush _defaultBrush = new SolidColorBrush(Colors.Black);
+
+        [NonSerialized]
+        private SolidColorBrush _instanceBorderBrush;
+        [UIHidden, XmlIgnore]
+        public SolidColorBrush InstanceBorderBrush
+        {
+            get
+            {
+                if (_isHighlighted == false)
+                {
+                    _instanceBorderBrush = _defaultBrush;
+                }
+                else
+                {
+                    _instanceBorderBrush = _highlightedBrush;
+                }
+
+                return _instanceBorderBrush;
             }
         }
 

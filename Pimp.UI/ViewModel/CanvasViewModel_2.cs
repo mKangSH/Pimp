@@ -112,6 +112,11 @@ namespace Pimp.ViewModel
                 {
                     return;
                 }
+
+                if (_selectedInstance != null)
+                {
+                    _selectedInstance.IsHighlighted = false;
+                }
                 
                 if (value == null)
                 {
@@ -120,11 +125,14 @@ namespace Pimp.ViewModel
                 }
 
                 _selectedInstance = value;
-                if(_selectedInstance != null)
+
+                if (_selectedInstance != null)
                 {
                     UpdateProperties();
                     _selectedInstance.PropertyChanged += SelectedInstance_PropertyChanged;
                     _copiedInstance = null;
+
+                    _selectedInstance.IsHighlighted = true;
                 }
                 
                 OnPropertyChanged(nameof(SelectedInstance));
@@ -438,6 +446,8 @@ namespace Pimp.ViewModel
             {
                 DllManager.LoadPimpCSharpAssembly();
             }
+
+            RemoveAllInstances();
 
             // 역직렬화
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));

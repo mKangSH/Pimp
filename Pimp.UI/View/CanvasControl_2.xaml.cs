@@ -41,7 +41,6 @@ namespace Pimp.View
             if (_draggedInstance != null)
             {
                 _draggedInstance.ZIndex = 2; // 또는 다른 높은 값
-                _draggedInstance.IsHighlighted = true;
                 (DataContext as CanvasViewModel_2).SelectedInstance = _draggedInstance;
             }
             _lastMousePosition = mousePosition;

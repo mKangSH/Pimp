@@ -15,7 +15,7 @@ Canvas에 AddInstance 후 Delete 할 때 Remove가 정확하게 되지 않아 �
  - Branch Local 변경 사항
      - Hight Lighting 기능 및 Converter 제어로 사용하던 wpf view 내부 동작 임시 비활성화
      - Detail View 더블클릭 기능 임시 비활성화
-     - Save, Load, Instance copy, Instance Paste 직렬화와 연관된 동작 임시 비활성화
+     - Instance copy, Instance Paste 동작 임시 비활성화 (Save, Load 기능 7/6 활성화)
      - CSharpAssembly 빌드 시 파일 감지하여 자동 DLL Load, Unload 기능 비활성화
      - CSharpAssembly 중 GaussianBlurModule에서 Enum 내용 삭제 (Assembly 로드 시 메모리에 잔존)
 

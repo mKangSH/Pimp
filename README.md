@@ -13,7 +13,7 @@ Pimp.CSharpAssembly는 D:\CodeProject\ 경로에 배치해야 정상 동작함.
 Canvas에 AddInstance 후 Delete 할 때 Remove가 정확하게 되지 않아 메모리에 잔존하여 Assembly Unload가 불가능    
  - Develop/Refactoring Branch에서 수정 진행중 (프로그램 기본 기능에 대하여 Unload 정상 작동 확인 완료)
  - Develop/Refactoring Branch 변경 사항
-     - Hight Lighting 기능 및 Converter 제어로 사용하던 wpf view 내부 동작 임시 비활성화
+     - HighLighting 기능 활성화
      - Detail View 더블클릭 기능 임시 비활성화
      - Instance Save, Load, copy, Paste 동작 기능 7/6 활성화
      - CSharpAssembly 빌드 시 파일 감지하여 자동 DLL Load, Unload 기능 7/6 활성화

@@ -35,6 +35,8 @@
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pimp.Common\Pimp.Common.csproj" />
+    <Reference Include="Pimp.Common">
+      <HintPath>..\Pimp.Common\dll\Pimp.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Pimp.Common">
-      <HintPath>..\Pimp.Common\bin\Debug\net8.0-windows7.0\Pimp.Common.dll</HintPath>
+      <HintPath>..\Pimp.Common\dll\Pimp.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

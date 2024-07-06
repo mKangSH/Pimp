@@ -148,12 +148,7 @@ namespace Pimp.ViewModel
 
         private void UpdateProperties()
         {
-            foreach (var propertyModel in Properties)
-            {
-                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
-                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
-            }
-            Properties.Clear();
+            ClearProperties();
 
             var properties = _selectedInstance.GetType().GetProperties().Where(p => !Attribute.IsDefined(p, typeof(UIHiddenAttribute)));
 
@@ -395,9 +390,87 @@ namespace Pimp.ViewModel
 
         public void RemoveAllInstances()
         {
-            CanvasInstances.Clear();
-            Edges.Clear();
+            foreach (var instance in CanvasInstances)
+            {
+                _selectedInstance = instance;
+                RemoveSelectedInstance();
+            }
+            
             SelectedInstance = null;
+        }
+
+        public void SaveInstances(string path)
+        {
+            if (Directory.Exists(Directory.GetParent(path).FullName) == false)
+            {
+                Directory.CreateDirectory(Directory.GetParent(path).FullName);
+            }
+
+            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
+            using (TextWriter writer = new StreamWriter(path))
+            {
+                serializer.Serialize(writer, CanvasInstances);
+            }
+
+            if (path.Contains("_temp"))
+            {
+                SaveProperties($"{Directory.GetParent(path).FullName}\\Properties_temp.xml");
+            }
+            else
+            {
+                SaveProperties($"{Directory.GetParent(path).FullName}\\Properties.xml");
+            }
+        }
+
+        List<CanvasInstanceBaseModel> _exceptionInstances = new List<CanvasInstanceBaseModel>();
+        public void LoadInstances(string path)
+        {
+            // 역직렬화
+            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
+            using (TextReader reader = new StreamReader(path))
+            {
+                CanvasInstances = (ObservableCollection<CanvasInstanceBaseModel>)serializer.Deserialize(reader);
+            }
+
+            foreach (var instance in CanvasInstances)
+            {
+                try
+                {
+                    if (instance is CanvasImageModel)
+                    {
+                        instance.OutputBitmapSource = GetBitmapSource(instance.FileModel.FilePath).Clone();
+                    }
+                    else if (instance is CanvasOneInputModuleModel)
+                    {
+                        var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
+
+                        var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        (instance as CanvasOneInputModuleModel).ModuleInterface = module as IOneInputModule;
+                    }
+                    else if (instance is CanvasMultiInputModuleModel)
+                    {
+                        var className = Path.GetFileNameWithoutExtension(instance.FileModel.FileName);
+
+                        var module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                        (instance as CanvasMultiInputModuleModel).ModuleInterface = module as IMultiInputModule;
+                    }
+                }
+                catch
+                {
+                    _exceptionInstances.Add(instance);
+                }
+            }
+
+            if (path.Contains("_temp"))
+            {
+                LoadProperties($"{Directory.GetParent(path).FullName}\\Properties_temp.xml");
+            }
+            else
+            {
+                LoadProperties($"{Directory.GetParent(path).FullName}\\Properties.xml");
+            }
+
+            OnPropertyChanged(nameof(CanvasInstances));
         }
 
         public void AddEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
@@ -429,9 +502,70 @@ namespace Pimp.ViewModel
             Edges.Remove(edge);
         }
 
-        public void RemoveAllEdges()
+        public void SaveEdges(string path)
         {
-            Edges.Clear();
+            if (Directory.Exists(Directory.GetParent(path).FullName) == false)
+            {
+                Directory.CreateDirectory(Directory.GetParent(path).FullName);
+            }
+
+            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
+            using (TextWriter writer = new StreamWriter(path))
+            {
+                serializer.Serialize(writer, Edges);
+            }
+        }
+
+        public void LoadEdges(string path)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
+            using (TextReader reader = new StreamReader(path))
+            {
+                var edges = (ObservableCollection<CanvasEdge>)serializer.Deserialize(reader);
+                foreach (var edge in edges)
+                {
+                    var edgeStart = CanvasInstances.FirstOrDefault(instance => instance.Name == edge.Start.Name);
+                    var edgeEnd = CanvasInstances.FirstOrDefault(instance => instance.Name == edge.End.Name);
+
+                    if (_exceptionInstances.Contains(edge.Start) || _exceptionInstances.Contains(edge.End) || edgeStart == null || edgeEnd == null)
+                    {
+                        continue;
+                    }
+
+                    if (edgeEnd is CanvasOneInputModuleModel && edgeStart != edgeEnd)
+                    {
+                        // Module의 Input은 1개이므로 이미 연결된 경우 더 이상 연결할 수 없습니다.
+                        if ((edgeEnd as CanvasOneInputModuleModel).CanConnect)
+                        {
+                            (edgeEnd as CanvasOneInputModuleModel).CanConnect = false;
+                            edgeStart.OutputBitmapSourceChanged -= edgeEnd.OnOutputBitmapSourceChanged;
+                            edgeStart.OutputBitmapSourceChanged += edgeEnd.OnOutputBitmapSourceChanged;
+                            AddEdge(edgeStart, edgeEnd);
+
+                            (edgeEnd as CanvasOneInputModuleModel)?.OnOutputBitmapSourceChanged(edgeStart.Name, edgeStart.OutputBitmapSource);
+                        }
+                    }
+                    else if (edgeEnd is CanvasMultiInputModuleModel && edgeStart != edgeEnd)
+                    {
+                        // TODO : MultiInputModule의 동작 정의 필요
+                        edgeStart.OutputBitmapSourceChanged -= edgeEnd.OnOutputBitmapSourceChanged;
+                        edgeStart.OutputBitmapSourceChanged += edgeEnd.OnOutputBitmapSourceChanged;
+                        AddEdge(edgeStart, edgeEnd);
+
+                        (edgeEnd as CanvasMultiInputModuleModel)?.OnOutputBitmapSourceChanged(edgeStart.Name, edgeStart.OutputBitmapSource);
+                    }
+                    else if (edgeEnd is CanvasResultModel && edgeStart != edgeEnd)
+                    {
+                        edgeStart.OutputBitmapSourceChanged -= edgeEnd.OnOutputBitmapSourceChanged;
+                        edgeStart.OutputBitmapSourceChanged += edgeEnd.OnOutputBitmapSourceChanged;
+                        edgeStart.NameChanged -= (edgeEnd as CanvasResultModel).ParentNameChanged;
+                        edgeStart.NameChanged += (edgeEnd as CanvasResultModel).ParentNameChanged;
+                        AddEdge(edgeStart, edgeEnd);
+
+                        (edgeEnd as CanvasResultModel)?.OnOutputBitmapSourceChanged(edgeStart.Name, edgeStart.OutputBitmapSource);
+                    }
+                }
+            }
         }
 
         private CanvasInstanceBaseModel _copiedInstance;
@@ -458,16 +592,74 @@ namespace Pimp.ViewModel
         private SerializableDictionary<string, List<PropertyModel>> _propertiesForSerialization = new SerializableDictionary<string, List<PropertyModel>>();
         public void SaveProperties(string path)
         {
+            // TODO : 동작이 너무 느린 경우 SelectedInstance 조회를 줄이는 방법을 찾아야 합니다.
+            var lastSelectedInstance = SelectedInstance;
+            
+            foreach (var instance in CanvasInstances)
+            {
+                SelectedInstance = instance;
+                _propertiesForSerialization.Add(SelectedInstance.Name, Properties.ToList());
+            }
+            SelectedInstance = lastSelectedInstance;
 
+            XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
+            using (TextWriter writer = new StreamWriter(path))
+            {
+                serializer.Serialize(writer, _propertiesForSerialization);
+            }
+
+            _propertiesForSerialization.Clear();
         }
 
         private void LoadProperties(string path)
         {
+            XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
+            using (TextReader reader = new StreamReader(path))
+            {
+                var propertiesOfAllIntances = (SerializableDictionary<string, List<PropertyModel>>)serializer.Deserialize(reader);
 
+                // TODO : CanvasMultiInputModuleModel의 동작 정의 필요
+                foreach (var instance in CanvasInstances.OfType<CanvasOneInputModuleModel>())
+                {
+                    if (propertiesOfAllIntances.TryGetValue(instance.Name, out var properties) == false)
+                    {
+                        continue;
+                    }
+
+                    foreach (var property in properties)
+                    {
+                        if (property.Name == "X" || property.Name == "Y")
+                        {
+                            continue;
+                        }
+
+                        var instanceProperty = instance.ModuleInterface.GetType().GetProperty(property.Name);
+                        object value;
+
+                        if (instanceProperty.PropertyType.IsEnum)
+                        {
+                            value = Enum.ToObject(instanceProperty.PropertyType, property.Value);
+                        }
+                        else
+                        {
+                            value = Convert.ChangeType(property.Value, instanceProperty.PropertyType);
+                        }
+
+                        instanceProperty.SetValue(instance.ModuleInterface, value);
+                    }
+                }
+            }
         }
 
         public void ClearProperties()
         {
+            // Properties 컬렉션을 Clear합니다.
+            foreach (var propertyModel in Properties)
+            {
+                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
+                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
+            }
+
             Properties.Clear();
             PropertiesView.Refresh();
         }

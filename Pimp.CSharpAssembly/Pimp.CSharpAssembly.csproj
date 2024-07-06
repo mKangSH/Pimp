@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="Resources\Modules\OpenCvSharp\" />
   </ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />

@@ -17,8 +17,8 @@ namespace Pimp.ViewModel
     {
         public ICommand SaveCommand { get; }
         public ICommand LoadCommand { get; }
-        public ICommand AssemblyUnloadCommand { get; }
-        public ICommand AssemblyLoadCommand { get; }
+        //public ICommand AssemblyUnloadCommand { get; }
+        //public ICommand AssemblyLoadCommand { get; }
 
         // CanvasViewModel의 인스턴스를 추가합니다.
         public CanvasViewModel_2 CanvasViewModel { get; }
@@ -40,30 +40,30 @@ namespace Pimp.ViewModel
                 canvasViewModel.LoadEdges("D:\\Pimp\\Edges.xml");
             });
 
-            AssemblyUnloadCommand = new RelayCommand(() =>
-            {
-                WeakReference pimpWeakRef;
-                DllManager.UnloadPimpCSharpAssembly(out pimpWeakRef);
-                for (int i = 0; pimpWeakRef.IsAlive && (i < 10); i++)
-                {
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
+            //AssemblyUnloadCommand = new RelayCommand(() =>
+            //{
+            //    WeakReference pimpWeakRef;
+            //    DllManager.UnloadPimpCSharpAssembly(out pimpWeakRef);
+            //    for (int i = 0; pimpWeakRef.IsAlive && (i < 10); i++)
+            //    {
+            //        GC.Collect();
+            //        GC.WaitForPendingFinalizers();
+            //    }
 
-                if (pimpWeakRef.IsAlive)
-                {
-                    Logger.Instance.AddLog("Assembly is still alive");
-                }
-                else
-                {
-                    Logger.Instance.AddLog("Assembly is dead");
-                }
-            });
+            //    if (pimpWeakRef.IsAlive)
+            //    {
+            //        Logger.Instance.AddLog("Assembly is still alive");
+            //    }
+            //    else
+            //    {
+            //        Logger.Instance.AddLog("Assembly is dead");
+            //    }
+            //});
 
-            AssemblyLoadCommand = new RelayCommand(() =>
-            {
-                DllManager.LoadPimpCSharpAssembly();
-            });
+            //AssemblyLoadCommand = new RelayCommand(() =>
+            //{
+            //    DllManager.LoadPimpCSharpAssembly();
+            //});
         }
     }
 }

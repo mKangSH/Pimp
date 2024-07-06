@@ -1,5 +1,6 @@
 ﻿using Pimp.Common.Log;
 using Pimp.UI.View;
+using Pimp.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,12 +45,23 @@ namespace Pimp.UI.Manager
 
     public static class DllManager
     {
+        private static FileSystemWatcher _watcher = new FileSystemWatcher();
+        private static System.Timers.Timer _debounceTimer;
+        private static readonly TimeSpan DebounceTime = TimeSpan.FromMilliseconds(2000); // Adjust this as needed
+
         private static PimpAssemblyLoadContext _pimpCSharpAssemblyContext;
         private static Assembly _pimpCSharpAssembly;
 
         public static Assembly PimpCSharpAssembly
         {
             get => _pimpCSharpAssembly;
+        }
+
+        private static CanvasViewModel_2 _canvasViewModel;
+        public static CanvasViewModel_2 CanvasViewModel
+        {
+            get => _canvasViewModel;
+            set => _canvasViewModel = value;
         }
 
         // It is important to mark this method as NoInlining, otherwise the JIT could decide
@@ -60,20 +72,17 @@ namespace Pimp.UI.Manager
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void LoadPimpCSharpAssembly()
         {
-#if DEBUG
-            string configName = "Debug";
-#else
-            string configName = "Release";
-#endif
-            string dllFile = $"D:\\CodeProject\\Pimp.CSharpAssembly\\bin\\{configName}\\net8.0-windows7.0\\Pimp.CSharpAssembly.dll";
-
+            string dllFile = Path.Combine(GlobalConst.dllPath, "Pimp.CSharpAssembly.dll");
             if(File.Exists(dllFile))
             {
-                _pimpCSharpAssemblyContext = new PimpAssemblyLoadContext(dllFile);
+                string assemblyModuleFile = Path.Combine(GlobalConst.dllPath, "Pimp.CSharpAssembly_copy.dll");
+                File.Copy(dllFile, assemblyModuleFile, true);
+
+                _pimpCSharpAssemblyContext = new PimpAssemblyLoadContext(assemblyModuleFile);
 
                 // Load the plugin assembly into the HostAssemblyLoadContext.
                 // NOTE: the assemblyPath must be an absolute path.
-                _pimpCSharpAssembly = _pimpCSharpAssemblyContext.LoadFromAssemblyPath(dllFile);
+                _pimpCSharpAssembly = _pimpCSharpAssemblyContext.LoadFromAssemblyPath(assemblyModuleFile);
             }
             else
             {
@@ -98,6 +107,74 @@ namespace Pimp.UI.Manager
 
             _pimpCSharpAssembly = null;
             _pimpCSharpAssemblyContext = null;
+        }
+
+        [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+        public static void InitFileSystemWatcher(string path)
+        {
+            _watcher.Path = path;
+            // Only watch dll files.
+            _watcher.Filter = "Pimp.CSharpAssembly.dll";
+            // Add event handlers.
+            _watcher.Changed += OnChanged;
+
+            // Begin watching.
+            _watcher.EnableRaisingEvents = true;
+
+            _debounceTimer = new System.Timers.Timer(DebounceTime.TotalMilliseconds);
+            _debounceTimer.Elapsed += (s, args) => HandleChanged();
+            _debounceTimer.AutoReset = false; // Prevent the timer from recurring
+        }
+
+        private static UInt64 _dllCount = 0;
+        private static string _lastChangedFile = string.Empty;
+        private static void OnChanged(object source, FileSystemEventArgs e)
+        {
+            if (e.ChangeType == WatcherChangeTypes.Changed)
+            {
+                _debounceTimer.Stop();
+                _lastChangedFile = e.FullPath;
+                _debounceTimer.Start();
+            }
+
+            e = null;
+        }
+
+        private static void HandleChanged()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                _canvasViewModel.SaveInstances("D:\\Pimp\\Instance_temp.xml");
+                _canvasViewModel.SaveEdges("D:\\Pimp\\Edges_temp.xml");
+
+                _canvasViewModel.RemoveAllInstances();
+
+                WeakReference pimpWeakRef;
+                UnloadPimpCSharpAssembly(out pimpWeakRef);
+                for (int i = 0; pimpWeakRef.IsAlive && (i < 10); i++)
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+
+                if (pimpWeakRef.IsAlive)
+                {
+                    Logger.Instance.AddLog("Assembly is still alive");
+                }
+                else
+                {
+                    Logger.Instance.AddLog("Assembly is dead");
+                }
+
+                LoadPimpCSharpAssembly();
+
+                _canvasViewModel.LoadInstances("D:\\Pimp\\Instance_temp.xml");
+                _canvasViewModel.LoadEdges("D:\\Pimp\\Edges_temp.xml");
+
+                File.Delete("D:\\Pimp\\Instance_temp.xml");
+                File.Delete("D:\\Pimp\\Edges_temp.xml");
+                File.Delete("D:\\Pimp\\Properties_temp.xml");
+            });
         }
     }
 }

@@ -288,6 +288,11 @@ namespace Pimp.ViewModel
 
         public void AddInstanceToCanvas(FileModel file, Point point)
         {
+            if(DllManager.PimpCSharpAssembly == null)
+            {
+                DllManager.LoadPimpCSharpAssembly();
+            }
+
             var className = Path.GetFileNameWithoutExtension(file.FileName);
 
             if (file.FileType == FileType.Image)
@@ -390,7 +395,9 @@ namespace Pimp.ViewModel
 
         public void RemoveAllInstances()
         {
-            foreach (var instance in CanvasInstances)
+            // CanvasInstances 컬렉션이 변경되므로 복사본을 만들어 사용합니다.
+            var InstanceToRemove = CanvasInstances.ToList();
+            foreach (var instance in InstanceToRemove)
             {
                 _selectedInstance = instance;
                 RemoveSelectedInstance();
@@ -425,6 +432,11 @@ namespace Pimp.ViewModel
         List<CanvasInstanceBaseModel> _exceptionInstances = new List<CanvasInstanceBaseModel>();
         public void LoadInstances(string path)
         {
+            if (DllManager.PimpCSharpAssembly == null)
+            {
+                DllManager.LoadPimpCSharpAssembly();
+            }
+
             // 역직렬화
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
             using (TextReader reader = new StreamReader(path))

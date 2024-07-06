@@ -15,13 +15,6 @@ namespace Pimp.CSharpAssembly.Modules
 {
     class CannyModule : OneInputBaseModule
     {
-        public enum ApertureSizeKernel
-        {
-            Size3 = 3,
-            Size5 = 5,
-            Size7 = 7
-        }
-
         private double _threshold1 = 50;
         public double Threshold1
         {
@@ -74,8 +67,8 @@ namespace Pimp.CSharpAssembly.Modules
             }
         }
 
-        private ApertureSizeKernel _apertureSize = ApertureSizeKernel.Size5;
-        public ApertureSizeKernel ApertureSize
+        private int _apertureSize = 3;
+        public int ApertureSize
         {
             get { return _apertureSize; }
             set
@@ -126,14 +119,13 @@ namespace Pimp.CSharpAssembly.Modules
             try
             {
                 // 여기에 코드를 작성하세요
-                Cv2.Canny(inspectionMat, result, _threshold1, _threshold2, (int)_apertureSize, L2gradient);
+                Cv2.Canny(inspectionMat, result, _threshold1, _threshold2, _apertureSize, L2gradient);
 
                 OutputImage = result.ToBitmapSource();
             }
             catch (Exception ex)
             {
-                var splitTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                Logger.Instance.AddLog($"{splitTrace[splitTrace.Length - 1]}{Environment.NewLine}{ex.Message}");
+                Logger.Instance.AddLog($"{ex.Message}");
 
                 OutputImage = InputImage;
             }

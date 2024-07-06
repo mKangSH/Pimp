@@ -55,28 +55,28 @@ namespace Pimp.CSharpAssembly.Modules
             }
         }
 
-        private double _maxThreshold = 255;
-        public double MaxThreshold 
+        private double _maxValue = 255;
+        public double MaxValue 
         {
-            get { return _maxThreshold; }
+            get { return _maxValue; }
             set 
             { 
-                if(_maxThreshold == value)
+                if(_maxValue == value)
                 {
                     return;
                 }
 
                 if (value < 0)
                 {
-                    _maxThreshold = 0;
+                    _maxValue = 0;
                 }
                 else if (value > 255)
                 {
-                    _maxThreshold = 255;
+                    _maxValue = 255;
                 }
                 else
                 {
-                    _maxThreshold = value;
+                    _maxValue = value;
                 }
             }
         }
@@ -100,15 +100,14 @@ namespace Pimp.CSharpAssembly.Modules
 
             try
             {
-                Cv2.Threshold(inspectionMat, result, ThresholdValue, MaxThreshold, ThresholdTypes);
+                Cv2.Threshold(inspectionMat, result, ThresholdValue, MaxValue, ThresholdTypes);
 
                 OutputImage = result.ToBitmapSource();
             }
 
             catch (Exception ex)
             {
-                var splitTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                Logger.Instance.AddLog($"{splitTrace[splitTrace.Length - 1]}{Environment.NewLine}{ex.Message}");
+                Logger.Instance.AddLog($"{ex.Message}");
 
                 OutputImage = InputImage;
             }

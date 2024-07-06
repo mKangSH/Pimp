@@ -45,8 +45,8 @@ namespace Pimp.CSharpAssembly.Modules
             }
         }
 
-        private float _centerPtX = 0;
-        public float CenterPtX
+        private double _centerPtX = 0;
+        public double CenterPtX
         {
             get { return _centerPtX; }
             set
@@ -60,8 +60,8 @@ namespace Pimp.CSharpAssembly.Modules
             }
         }
 
-        private float _centerPtY = 0;
-        public float CenterPtY
+        private double _centerPtY = 0;
+        public double CenterPtY
         {
             get { return _centerPtY; }
             set
@@ -141,14 +141,13 @@ namespace Pimp.CSharpAssembly.Modules
             try
             {
                 // 여기에 코드를 작성하세요
-                Cv2.WarpPolar(inspectionMat, result, new Size(PolarImageWidth, PolarImageHeight), new Point2f(CenterPtX, CenterPtY), MaxRadius, InterpolationFlags.Linear, WarpPolarMode.Linear);
+                Cv2.WarpPolar(inspectionMat, result, new Size(PolarImageWidth, PolarImageHeight), new Point(CenterPtX, CenterPtY), MaxRadius, InterpolationFlags.Linear, WarpPolarMode.Linear);
 
                 OutputImage = result.ToBitmapSource();
             }
             catch (Exception ex)
             {
-                var splitTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                Logger.Instance.AddLog($"{splitTrace[splitTrace.Length - 1]}{Environment.NewLine}{ex.Message}");
+                Logger.Instance.AddLog($"{ex.Message}");
 
                 OutputImage = InputImage;
             }

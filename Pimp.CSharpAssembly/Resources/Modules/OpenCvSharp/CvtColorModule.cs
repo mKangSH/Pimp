@@ -10,8 +10,6 @@ using System.Windows.Input;
 using Pimp.Common.Models;
 using System.Security.Cryptography;
 using Pimp.Common.Log;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Pimp.CSharpAssembly.Modules
 {
@@ -58,8 +56,7 @@ namespace Pimp.CSharpAssembly.Modules
             }
             catch (Exception ex)
             {
-                var splitTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                Logger.Instance.AddLog($"{splitTrace[splitTrace.Length - 1]}{Environment.NewLine}{ex.Message}");
+                Logger.Instance.AddLog($"{ex.Message}");
 
                 OutputImage = InputImage;
             }

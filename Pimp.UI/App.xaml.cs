@@ -1,5 +1,6 @@
 ﻿using Pimp.Common.Log;
 using Pimp.Model;
+using Pimp.UI;
 using Pimp.UI.Manager;
 using Pimp.UI.View;
 using Pimp.View;
@@ -32,7 +33,6 @@ namespace Pimp
         InstanceDetailWindow _detailWindow = new InstanceDetailWindow();
 
         CanvasViewModel_2 _canvasViewModel;
-        
         AddCSharpFileDialogWindow _dialog = new AddCSharpFileDialogWindow();
 
         protected override void OnStartup(StartupEventArgs e)
@@ -49,6 +49,9 @@ namespace Pimp
             ConstructView();
 
             ConsturctDetailWindow();
+
+            DllManager.CanvasViewModel = _canvasViewModel;
+            DllManager.InitFileSystemWatcher(GlobalConst.dllPath);
         }
 
         private void ConstructView()

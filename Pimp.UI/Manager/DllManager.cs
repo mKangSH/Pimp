@@ -57,8 +57,8 @@ namespace Pimp.UI.Manager
             get => _pimpCSharpAssembly;
         }
 
-        private static CanvasViewModel_2 _canvasViewModel;
-        public static CanvasViewModel_2 CanvasViewModel
+        private static CanvasViewModel _canvasViewModel;
+        public static CanvasViewModel CanvasViewModel
         {
             get => _canvasViewModel;
             set => _canvasViewModel = value;
@@ -72,10 +72,10 @@ namespace Pimp.UI.Manager
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void LoadPimpCSharpAssembly()
         {
-            string dllFile = Path.Combine(GlobalConst.dllPath, "Pimp.CSharpAssembly.dll");
+            string dllFile = Path.Combine(GlobalConst.DllPath, "Pimp.CSharpAssembly.dll");
             if(File.Exists(dllFile))
             {
-                string assemblyModuleFile = Path.Combine(GlobalConst.dllPath, "Pimp.CSharpAssembly_copy.dll");
+                string assemblyModuleFile = Path.Combine(GlobalConst.DllPath, "Pimp.CSharpAssembly_copy.dll");
                 File.Copy(dllFile, assemblyModuleFile, true);
 
                 _pimpCSharpAssemblyContext = new PimpAssemblyLoadContext(assemblyModuleFile);

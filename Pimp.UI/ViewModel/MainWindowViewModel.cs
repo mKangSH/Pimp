@@ -17,27 +17,22 @@ namespace Pimp.ViewModel
     {
         public ICommand SaveCommand { get; }
         public ICommand LoadCommand { get; }
+
         //public ICommand AssemblyUnloadCommand { get; }
         //public ICommand AssemblyLoadCommand { get; }
 
-        // CanvasViewModel의 인스턴스를 추가합니다.
-        public CanvasViewModel_2 CanvasViewModel { get; }
-
-        public MainWindowViewModel(CanvasViewModel_2 canvasViewModel)
+        public MainWindowViewModel()
         {
-            // 주입받은 CanvasViewModel을 사용합니다.
-            CanvasViewModel = canvasViewModel;
-
             SaveCommand = new RelayCommand(() =>
             {
-                canvasViewModel.SaveInstances("D:\\Pimp\\Instance.xml");
-                canvasViewModel.SaveEdges("D:\\Pimp\\Edges.xml");
+                //canvasViewModel.SaveInstances("D:\\Pimp\\Instance.xml");
+                //canvasViewModel.SaveEdges("D:\\Pimp\\Edges.xml");
             });
 
-            LoadCommand = new RelayCommand(() => 
+            LoadCommand = new RelayCommand(() =>
             {
-                canvasViewModel.LoadInstances("D:\\Pimp\\Instance.xml");
-                canvasViewModel.LoadEdges("D:\\Pimp\\Edges.xml");
+                //canvasViewModel.LoadInstances("D:\\Pimp\\Instance.xml");
+                //canvasViewModel.LoadEdges("D:\\Pimp\\Edges.xml");
             });
 
             //AssemblyUnloadCommand = new RelayCommand(() =>

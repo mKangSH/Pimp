@@ -1,4 +1,6 @@
 ﻿using Pimp.Model;
+using Pimp.UI.Manager;
+using Pimp.UI;
 using Pimp.View;
 using Pimp.ViewModel;
 using System;
@@ -29,6 +31,14 @@ namespace Pimp
         {
             InitializeComponent();
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
+
+            DllManager.CanvasViewModel = (CanvasView.DataContext as CanvasViewModel);
+            DllManager.InitFileSystemWatcher(GlobalConst.DllPath);
+
+            CanvasView.ScrollViewer = ScrollViewer;
+
+            ScrollViewer.ScrollToVerticalOffset(ScrollViewer.ScrollableHeight / 2);
+            ScrollViewer.ScrollToHorizontalOffset(ScrollViewer.ScrollableWidth / 2);
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -45,7 +55,7 @@ namespace Pimp
                 // 이 메서드는 ViewModel에서 구현해야 합니다.
                 Point dropPosition = e.GetPosition(sender as IInputElement);
 
-                (this.CanvasControl.DataContext as CanvasViewModel_2)?.AddInstanceToCanvas(file, dropPosition);
+                (this.CanvasView.DataContext as CanvasViewModel)?.AddInstanceToCanvas(file, dropPosition);
             }
         }
 
@@ -71,18 +81,18 @@ namespace Pimp
                 }
                 else if (originalSourceType == typeof(ListBoxItem) || originalSourceType == typeof(ScrollViewer))
                 {
-                    (this.CanvasControl.DataContext as CanvasViewModel_2)?.RemoveSelectedInstance();
+                    (this.CanvasView.DataContext as CanvasViewModel)?.RemoveSelectedInstance();
                     //this.CanvasControl.DetailViewWindow.Hide();
                 }
                 // Add more checks as needed
             }
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                (this.CanvasControl.DataContext as CanvasViewModel_2)?.CopySelectedInstance();
+                (this.CanvasView.DataContext as CanvasViewModel)?.CopySelectedInstance();
             }
             else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                (this.CanvasControl.DataContext as CanvasViewModel_2)?.PasteCopiedInstance();
+                (this.CanvasView.DataContext as CanvasViewModel)?.PasteCopiedInstance();
             }
         }
     }

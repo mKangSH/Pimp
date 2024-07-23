@@ -1,5 +1,6 @@
 ﻿using Pimp.Common.Command;
 using Pimp.Model;
+using Pimp.UI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +16,11 @@ namespace Pimp.ViewModel
 {
     public class FileViewModel : INotifyPropertyChanged
     {
+        public FileViewModel()
+        {
+            UpdateFileList(GlobalConst.ResourcePath);
+        }
+
         enum FolderChangeType
         {
             Created,
@@ -113,7 +119,7 @@ namespace Pimp.ViewModel
 
         private FolderModel _rootFolder;
 
-        public FileViewModel(string projectPath)
+        public void UpdateFileList(string projectPath)
         {
             ShowAddCSharpFileDialogCommand = new RelayCommand<object>(ShowAddCSharpFileDialog);
             DeleteSelectedFileCommand = new RelayCommand<object>(DeleteSelectedFile, CanDeleteSelectedFile);

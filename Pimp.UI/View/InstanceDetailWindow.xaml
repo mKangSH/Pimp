@@ -8,20 +8,6 @@
         mc:Ignorable="d"
         Title="InstanceDetailWindow" Height="720" Width="1280"
         Topmost="True">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../UI/Resources/CanvasInstanceTemplate.xaml" />
-                <ResourceDictionary Source="../UI/Resources/PropertyTemplate.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            
-            <ui:PropertyTemplateSelector x:Key="PropertyTemplateSelector"
-                             DefaultTemplate="{StaticResource DefaultTemplate}"
-                             BooleanTemplate="{StaticResource BooleanTemplate}"
-                             NumericTemplate="{StaticResource NumericTemplate}"
-                             EnumTemplate="{StaticResource EnumTemplate}"/>
-        </ResourceDictionary>
-    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

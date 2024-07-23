@@ -22,6 +22,8 @@ namespace Pimp.View
     /// </summary>
     public partial class CanvasControl : UserControl
     {
+        public ScrollViewer ScrollViewer;
+
         private CanvasInstanceBaseModel _draggedInstance;
         private Point? _dragStartPoint = null;
         private Point _lastMousePosition;
@@ -39,7 +41,6 @@ namespace Pimp.View
             if (_draggedInstance != null)
             {
                 _draggedInstance.ZIndex = 2; // 또는 다른 높은 값
-                _draggedInstance.IsHighlighted = true;
                 (DataContext as CanvasViewModel).SelectedInstance = _draggedInstance;
             }
             _lastMousePosition = mousePosition;
@@ -91,7 +92,7 @@ namespace Pimp.View
         {
             var canvasViewModel = DataContext as CanvasViewModel;
 
-            foreach (var instance in canvasViewModel.Instances)
+            foreach (var instance in canvasViewModel.CanvasInstances)
             {
                 if (IsPointInsideInstance(position, instance))
                 {
@@ -107,11 +108,9 @@ namespace Pimp.View
                    point.Y >= instance.Y && point.Y <= instance.Y + 130/*instance.Height*/;
         }
 
-        
         private Line tempLine;
         private CanvasInstanceBaseModel _startInstance = null;
 
-        public ScrollViewer ScrollViewer;
         private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             var mousePosition = e.GetPosition(canvas);
@@ -126,7 +125,7 @@ namespace Pimp.View
                 return;
             }
 
-            if(instance is CanvasResultModel)
+            if (instance is CanvasResultModel)
             {
                 return;
             }
@@ -148,13 +147,13 @@ namespace Pimp.View
 
         private void Canvas_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if(_dragStartPoint.HasValue)
+            if (_dragStartPoint.HasValue)
             {
                 _dragStartPoint = null;
 
                 return;
             }
-            
+
             var mousePosition = e.GetPosition(canvas);
             var endInstance = GetInstanceAtPosition(mousePosition);
 
@@ -167,42 +166,42 @@ namespace Pimp.View
             }
 
             var canvasViewModel = DataContext as CanvasViewModel;
-            if(endInstance is CanvasOneInputModuleModel && _startInstance != endInstance)
-            {
-                // OneInputModule의 Input은 1개이므로 이미 연결된 경우 더 이상 연결할 수 없습니다.
-                if((endInstance as CanvasOneInputModuleModel).CanConnect)
-                {
-                    (endInstance as CanvasOneInputModuleModel).CanConnect = false;
-                    _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
-                    _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
-                    canvasViewModel.AddEdge(_startInstance, endInstance);
+            //if (endInstance is CanvasOneInputModuleModel && _startInstance != endInstance)
+            //{
+            //    // OneInputModule의 Input은 1개이므로 이미 연결된 경우 더 이상 연결할 수 없습니다.
+            //    if ((endInstance as CanvasOneInputModuleModel).CanConnect)
+            //    {
+            //        (endInstance as CanvasOneInputModuleModel).CanConnect = false;
+            //        _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
+            //        _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
+            //        canvasViewModel.AddEdge(_startInstance, endInstance);
 
-                    (endInstance as CanvasOneInputModuleModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
-                }
-            }
-            else if (endInstance is CanvasMultiInputModuleModel && _startInstance != endInstance)
-            {
-                // TODO : MultiInputModuleModel 정확한 동작 기입 필요
-                _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
-                _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
-                canvasViewModel.AddEdge(_startInstance, endInstance);
+            //        (endInstance as CanvasOneInputModuleModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
+            //    }
+            //}
+            //else if (endInstance is CanvasMultiInputModuleModel && _startInstance != endInstance)
+            //{
+            //    // TODO : MultiInputModuleModel 정확한 동작 기입 필요
+            //    _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
+            //    _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
+            //    canvasViewModel.AddEdge(_startInstance, endInstance);
 
-                (endInstance as CanvasMultiInputModuleModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
-            }
-            else if (endInstance is CanvasResultModel && _startInstance != endInstance)
-            {
-                // 같은 선을 2개 연결하지 않도록 방지합니다.
-                if((endInstance as CanvasResultModel).ResultList.ContainsKey(_startInstance.Name) == false)
-                {
-                    _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
-                    _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
-                    _startInstance.NameChanged -= (endInstance as CanvasResultModel).ParentNameChanged;
-                    _startInstance.NameChanged += (endInstance as CanvasResultModel).ParentNameChanged;
+            //    (endInstance as CanvasMultiInputModuleModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
+            //}
+            //else if (endInstance is CanvasResultModel && _startInstance != endInstance)
+            //{
+            //    // 같은 선을 2개 연결하지 않도록 방지합니다.
+            //    if ((endInstance as CanvasResultModel).ResultList.ContainsKey(_startInstance.Name) == false)
+            //    {
+            //        _startInstance.OutputBitmapSourceChanged -= endInstance.OnOutputBitmapSourceChanged;
+            //        _startInstance.OutputBitmapSourceChanged += endInstance.OnOutputBitmapSourceChanged;
+            //        _startInstance.NameChanged -= (endInstance as CanvasResultModel).ParentNameChanged;
+            //        _startInstance.NameChanged += (endInstance as CanvasResultModel).ParentNameChanged;
 
-                    canvasViewModel.AddEdge(_startInstance, endInstance);
-                    (endInstance as CanvasResultModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
-                }
-            }
+            //        canvasViewModel.AddEdge(_startInstance, endInstance);
+            //        (endInstance as CanvasResultModel)?.OnOutputBitmapSourceChanged(_startInstance.Name, _startInstance.OutputBitmapSource);
+            //    }
+            //}
 
             canvas.Children.Remove(tempLine);
             tempLine = null;

@@ -8,6 +8,8 @@ namespace Pimp.UI
 {
     public static class GlobalConst
     {
-        public static string dllPath = $"D:\\CodeProject\\Pimp.CSharpAssembly\\dll\\";
+        public static string ResourcePath { get; } = $"D:\\CodeProject\\Pimp.CSharpAssembly\\";
+
+        public static string DllPath { get; } = $"D:\\CodeProject\\Pimp.CSharpAssembly\\dll\\";
     }
 }

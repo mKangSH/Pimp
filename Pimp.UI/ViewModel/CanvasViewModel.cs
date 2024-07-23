@@ -37,7 +37,7 @@ namespace Pimp.ViewModel
         UInt64 _imageCount = 1;
         public UInt64 ImageCount
         {
-            get 
+            get
             {
                 if (_imageCount == UInt64.MaxValue)
                 {
@@ -90,255 +90,47 @@ namespace Pimp.ViewModel
             }
         }
 
-        private CanvasInstanceBaseModel _selectedInstance;
-        public CanvasInstanceBaseModel SelectedInstance
-        {
-            get { return _selectedInstance; }
-            set
-            {
-                if (value == null)
-                {
-                    if (_selectedInstance != null)
-                    {
-                        _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
-                        if (_selectedInstance is CanvasOneInputModuleModel oneInputModuleModel)
-                        {
-                            oneInputModuleModel.ModuleInterface = null;
-                        }
-                        if (_selectedInstance is CanvasMultiInputModuleModel multiInputModuleModel)
-                        {
-                            // TODO : MultiInputModule Model 정확한 동작 기입 필요
-                            multiInputModuleModel.ModuleInterface = null;
-                        }
-                        _selectedInstance.ZIndex = 0;
-                        _selectedInstance.IsHighlighted = false;
-                    }
-                    _copiedInstance = null;
-                    _selectedInstance = null;
-
-                    return;
-                }
-
-                if (_selectedInstance != null && _selectedInstance != value)
-                {
-                    _selectedInstance.ZIndex = 0;
-                    _selectedInstance.IsHighlighted = false;
-                    _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
-                    _copiedInstance = null;
-                }
-
-                if (value != null && _selectedInstance != value)
-                {
-                    _selectedInstance = value;
-                    _selectedInstance.IsHighlighted = true;
-                    OnPropertyChanged("SelectedInstance");
-
-                    // Add this condition to prevent recursive calls
-                    if (_selectedInstance != null)
-                    {
-                        _selectedInstance.PropertyChanged += SelectedInstance_PropertyChanged;
-                        UpdateProperties();
-                    }
-                }
-            }
-        }
-
-        public ObservableCollection<CanvasInstanceBaseModel> Instances { get; private set; } = new ObservableCollection<CanvasInstanceBaseModel>();
+        public ObservableCollection<CanvasInstanceBaseModel> CanvasInstances { get; private set; } = new ObservableCollection<CanvasInstanceBaseModel>();
 
         public ObservableCollection<CanvasEdge> Edges { get; } = new ObservableCollection<CanvasEdge>();
 
         public ObservableCollection<GridLine> GridLines { get; } = new ObservableCollection<GridLine>();
 
-        public CanvasViewModel()
+        private CanvasInstanceBaseModel _selectedInstance;
+        public CanvasInstanceBaseModel SelectedInstance
         {
-            PropertiesView = new ListCollectionView(Properties);
-            for (int i = 0; i < 1000; i++)
+            get => _selectedInstance;
+            set
             {
-                if(i % 10 == 0)
+                if (_selectedInstance == value)
                 {
-                    GridLines.Add(new GridLine { StartPoint = new Point(i * 10, 0), EndPoint = new Point(i * 10, 10000), GridBrush = BlackBrush });
-                    GridLines.Add(new GridLine { StartPoint = new Point(0, i * 10), EndPoint = new Point(10000, i * 10), GridBrush = BlackBrush });
-                }
-                else
-                {
-                    GridLines.Add(new GridLine { StartPoint = new Point(i * 10, 0), EndPoint = new Point(i * 10, 10000), GridBrush = AliceBlueBrush });
-                    GridLines.Add(new GridLine { StartPoint = new Point(0, i * 10), EndPoint = new Point(10000, i * 10), GridBrush = AliceBlueBrush });
-                }
-            }
-        }
-
-        public void AddInstance(CanvasInstanceBaseModel instance)
-        {
-            // 인스턴스의 이름이 중복되지 않도록 처리합니다.
-            var count = 1;
-            while (Instances.Any(i => i.Name == instance.Name))
-            {
-                instance.Name = $"{instance.Name}_{count++}";
-            }
-
-            Instances.Add(instance);
-        }
-
-        public void AddInstanceToCanvas(FileModel file, Point point)
-        {
-            var extension = file.FileExtension.ToLower();
-            var className = Path.GetFileNameWithoutExtension(file.FileName);
-
-            if (extension == ".jpg" || extension == ".png" || extension == ".gif" || extension == ".bmp")
-            {
-                var instance = new CanvasImageModel
-                {
-                    Name = $"{className}_{(ImageCount).ToString("000")}",
-                    X = Math.Round(point.X),
-                    Y = Math.Round(point.Y),
-                    ZIndex = 0,
-                    FileModel = file,
-
-                    OutputBitmapSource = GetBitmapSource(file.FilePath).Clone(),
-                };
-                AddInstance(instance);
-            }
-            else if(extension == ".cs" && file.FilePath.Contains("Modules"))
-            {
-                object module = null;
-                try
-                {
-                    module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
-                }
-                catch
-                {
-                    Logger.Instance.AddLog($"Module {className}을(를) 로드하는데 실패했습니다. \nAssembly Build를 시도해보세요!");
                     return;
                 }
-                
-                if(module is IOneInputModule oneInputModule)
+
+                if (_selectedInstance != null)
                 {
-                    var instance = new CanvasOneInputModuleModel
-                    {
-                        Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
-                        X = Math.Round(point.X),
-                        Y = Math.Round(point.Y),
-                        ZIndex = 0,
-                        FileModel = file,
-
-                        ModuleInterface = oneInputModule,
-                    };
-                    AddInstance(instance);
-                }
-                else if(module is IMultiInputModule multiInputModule)
-                {
-                    var instance = new CanvasMultiInputModuleModel
-                    {
-                        Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
-                        X = Math.Round(point.X),
-                        Y = Math.Round(point.Y),
-                        ZIndex = 0,
-                        FileModel = file,
-
-                        ModuleInterface = multiInputModule,
-                    };
-                    AddInstance(instance);
-                }
-            }
-            else if (extension == ".cs" && file.FilePath.Contains("Results"))
-            {
-                var instance = new CanvasResultModel
-                {
-                    Name = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{(ResultModuleCount).ToString("000")}",
-                    X = Math.Round(point.X),
-                    Y = Math.Round(point.Y),
-                    ZIndex = 0,
-                    FileModel = file,
-                };
-                AddInstance(instance);
-            }
-        }
-
-        public BitmapSource GetBitmapSource(string imagePath)
-        {
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(imagePath, UriKind.Absolute);
-            bitmap.EndInit();
-            return bitmap;
-        }
-
-        public void AddEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
-        {
-            var edge = new CanvasEdge(start, end);
-            Edges.Add(edge);
-        }
-
-        public void RemoveEdge(CanvasEdge edge)
-        {
-            Edges.Remove(edge);
-        }
-
-        public void RemoveSelectedInstance()
-        {
-            if (_selectedInstance == null)
-            {
-                return;
-            }
-
-            // 선택한 인스턴스와 연결된 간선을 찾아 제거합니다.
-            var connectedEdges = Edges.Where(edge => edge.Start == _selectedInstance || edge.End == _selectedInstance).ToList();
-            foreach (var edge in connectedEdges)
-            {
-                edge.End.OutputBitmapSource = null;
-                edge.End.Run();
-
-                if (edge.Start == _selectedInstance && edge.End is CanvasOneInputModuleModel endModule)
-                {
-                    endModule.CanConnect = true;
-                }
-                else if (edge.Start == _selectedInstance && edge.End is CanvasMultiInputModuleModel multiInputModuleModel)
-                {
-                    // TODO : 만약 기능이 추가되게 된다면 정의 필요
-                }
-                else if (edge.Start == _selectedInstance && edge.End is CanvasResultModel resultModule)
-                {
-                    resultModule?.DeleteResult(_selectedInstance.Name);
-                    edge.Start.NameChanged -= resultModule.ParentNameChanged;
-                }
-                else
-                {
-                    // TODO : 동작 정의 필요
+                    _selectedInstance.IsHighlighted = false;
                 }
 
-                edge.Start.OutputBitmapSourceChanged -= edge.End.OnOutputBitmapSourceChanged;
-                Edges.Remove(edge);
-            }
+                if (value == null)
+                {
+                    _selectedInstance.PropertyChanged -= SelectedInstance_PropertyChanged;
+                    _copiedInstance = null;
+                }
 
-            Instances.Remove(_selectedInstance);
-            if (_selectedInstance is CanvasOneInputModuleModel oneInputModule)
-            {
-                oneInputModule.ModuleInterface = null;
-            }
-            else if(_selectedInstance is CanvasMultiInputModuleModel multiInputModule)
-            {
-                multiInputModule.ModuleInterface = null;
-            }
+                _selectedInstance = value;
 
-            if(_selectedInstance?.OutputBitmapSource != null)
-            {
-                _selectedInstance.OutputBitmapSource = null;
+                if (_selectedInstance != null)
+                {
+                    UpdateProperties();
+                    _selectedInstance.PropertyChanged += SelectedInstance_PropertyChanged;
+                    _copiedInstance = null;
+
+                    _selectedInstance.IsHighlighted = true;
+                }
+
+                OnPropertyChanged(nameof(SelectedInstance));
             }
-            _selectedInstance = null;
-
-            // UI를 강제로 업데이트합니다.
-            OnPropertyChanged(nameof(Properties));
-
-            // Properties 컬렉션을 Clear합니다.
-            foreach (var propertyModel in Properties)
-            {
-                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
-                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
-            }
-            Properties.Clear();
-
-            // PropertiesView를 갱신하여 UI를 업데이트합니다.
-            PropertiesView.Refresh();
         }
 
         private void SelectedInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -350,7 +142,7 @@ namespace Pimp.ViewModel
             }
 
             var property = Properties.FirstOrDefault(p => p.Name == e.PropertyName);
-            if(property == null)
+            if (property == null)
             {
                 return;
             }
@@ -360,12 +152,7 @@ namespace Pimp.ViewModel
 
         private void UpdateProperties()
         {
-            foreach (var propertyModel in Properties)
-            {
-                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
-                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
-            }
-            Properties.Clear();
+            ClearProperties();
 
             var properties = _selectedInstance.GetType().GetProperties().Where(p => !Attribute.IsDefined(p, typeof(UIHiddenAttribute)));
 
@@ -397,6 +184,19 @@ namespace Pimp.ViewModel
                     Properties.Add(propertyModel);
                 }
             }
+        }
+
+        private void PropertyModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != "Value")
+            {
+                return;
+            }
+
+            var propertyModel = (PropertyModel)sender;
+            var property = _selectedInstance.GetType().GetProperty(propertyModel.Name);
+            var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
+            property.SetValue(_selectedInstance, value);
         }
 
         private void PropertyModuleModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -460,63 +260,154 @@ namespace Pimp.ViewModel
             }
         }
 
-        private void PropertyModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public CanvasViewModel()
         {
-            if (e.PropertyName == "Value")
+            PropertiesView = new ListCollectionView(Properties);
+            for (int i = 0; i < 1000; i++)
             {
-                var propertyModel = (PropertyModel)sender;
-                var property = _selectedInstance.GetType().GetProperty(propertyModel.Name);
-                var value = Convert.ChangeType(propertyModel.Value, property.PropertyType);
-                property.SetValue(_selectedInstance, value);
+                if (i % 10 == 0)
+                {
+                    GridLines.Add(new GridLine { StartPoint = new Point(i * 10, 0), EndPoint = new Point(i * 10, 10000), GridBrush = BlackBrush });
+                    GridLines.Add(new GridLine { StartPoint = new Point(0, i * 10), EndPoint = new Point(10000, i * 10), GridBrush = BlackBrush });
+                }
+                else
+                {
+                    GridLines.Add(new GridLine { StartPoint = new Point(i * 10, 0), EndPoint = new Point(i * 10, 10000), GridBrush = AliceBlueBrush });
+                    GridLines.Add(new GridLine { StartPoint = new Point(0, i * 10), EndPoint = new Point(10000, i * 10), GridBrush = AliceBlueBrush });
+                }
             }
+        }
+
+        public void AddInstance(CanvasInstanceBaseModel instance)
+        {
+            // 인스턴스의 이름이 중복되지 않도록 처리합니다.
+            var count = 1;
+            while (CanvasInstances.Any(i => i.Name == instance.Name))
+            {
+                instance.Name = $"{instance.Name}_{count++}";
+            }
+
+            CanvasInstances.Add(instance);
+        }
+
+        public void AddInstanceToCanvas(FileModel file, Point point)
+        {
+            if (DllManager.PimpCSharpAssembly == null)
+            {
+                DllManager.LoadPimpCSharpAssembly();
+            }
+
+            var className = Path.GetFileNameWithoutExtension(file.FileName);
+
+            if (file.FileType == FileType.Image)
+            {
+                var instance = new CanvasImageModel
+                {
+                    Name = $"{className}_{(ImageCount).ToString("000")}",
+                    X = Math.Round(point.X),
+                    Y = Math.Round(point.Y),
+                    ZIndex = 0,
+                    FileModel = file,
+
+                    OutputBitmapSource = GetBitmapSource(file.FilePath).Clone(),
+                };
+                AddInstance(instance);
+            }
+            else if (file.FileType == FileType.CSharp && file.FilePath.Contains("Modules"))
+            {
+                object module = null;
+                try
+                {
+                    module = Activator.CreateInstance(DllManager.PimpCSharpAssembly.GetType($"Pimp.CSharpAssembly.Modules.{className}"));
+                }
+                catch
+                {
+                    Logger.Instance.AddLog($"Module {className}을(를) 로드하는데 실패했습니다. \nAssembly Build를 시도해보세요!");
+                    return;
+                }
+
+                if (module is IOneInputModule oneInputModule)
+                {
+                    var instance = new CanvasOneInputModuleModel
+                    {
+                        Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
+                        X = Math.Round(point.X),
+                        Y = Math.Round(point.Y),
+                        ZIndex = 0,
+                        FileModel = file,
+
+                        ModuleInterface = oneInputModule,
+                    };
+                    AddInstance(instance);
+                }
+                else if (module is IMultiInputModule multiInputModule)
+                {
+                    var instance = new CanvasMultiInputModuleModel
+                    {
+                        Name = $"{Path.GetFileNameWithoutExtension(file.FileName.Replace("Module", ""))}_{(ModuleCount).ToString("000")}",
+                        X = Math.Round(point.X),
+                        Y = Math.Round(point.Y),
+                        ZIndex = 0,
+                        FileModel = file,
+
+                        ModuleInterface = multiInputModule,
+                    };
+                    AddInstance(instance);
+                }
+            }
+            else if (file.FileType == FileType.CSharp && file.FilePath.Contains("Results"))
+            {
+                var instance = new CanvasResultModel
+                {
+                    Name = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{(ResultModuleCount).ToString("000")}",
+                    X = Math.Round(point.X),
+                    Y = Math.Round(point.Y),
+                    ZIndex = 0,
+                    FileModel = file,
+                };
+                AddInstance(instance);
+            }
+        }
+
+        public void RemoveSelectedInstance()
+        {
+            if (SelectedInstance == null)
+            {
+                return;
+            }
+
+            // 선택한 인스턴스와 연결된 간선을 찾아 제거합니다.
+            var connectedEdges = Edges.Where(edge => edge.Start == _selectedInstance || edge.End == _selectedInstance).ToList();
+            foreach (var edge in connectedEdges)
+            {
+                RemoveEdge(_selectedInstance, edge);
+            }
+
+            if (SelectedInstance is CanvasOneInputModuleModel oneInputModuleModel)
+            {
+                oneInputModuleModel.ModuleInterface = null;
+            }
+            else if (SelectedInstance is CanvasMultiInputModuleModel multiInputModuleModel)
+            {
+                multiInputModuleModel.ModuleInterface = null;
+            }
+
+            CanvasInstances.Remove(_selectedInstance);
+
+            ClearProperties();
         }
 
         public void RemoveAllInstances()
         {
-            // Instances 컬렉션을 모두 지우기
-            var InstancesToRemove = Instances.ToList();
-            foreach(var instance in Instances)
+            // CanvasInstances 컬렉션이 변경되므로 복사본을 만들어 사용합니다.
+            var InstanceToRemove = CanvasInstances.ToList();
+            foreach (var instance in InstanceToRemove)
             {
-                if (instance is CanvasOneInputModuleModel oneInputModule)
-                {
-                    oneInputModule.ModuleInterface = null;
-                }
-                else if(instance is CanvasMultiInputModuleModel multiInputModule)
-                {
-                    multiInputModule.ModuleInterface = null;
-                }
-
-                if (instance?.OutputBitmapSource != null)
-                {
-                    instance.OutputBitmapSource = null;
-                }
-
-                InstancesToRemove.Add(instance);
-            }
-
-            foreach(var instance in InstancesToRemove)
-            {
-                Instances.Remove(instance);
+                SelectedInstance = instance;
+                RemoveSelectedInstance();
             }
 
             SelectedInstance = null;
-        }
-
-        public void ClearProperties()
-        {
-            // UI를 강제로 업데이트합니다.
-            OnPropertyChanged(nameof(Properties));
-
-            // Properties 컬렉션을 Clear합니다.
-            foreach (var propertyModel in Properties)
-            {
-                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
-                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
-            }
-            Properties.Clear();
-
-            // PropertiesView를 갱신하여 UI를 업데이트합니다.
-            PropertiesView.Refresh();
         }
 
         public void SaveInstances(string path)
@@ -529,7 +420,7 @@ namespace Pimp.ViewModel
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
             using (TextWriter writer = new StreamWriter(path))
             {
-                serializer.Serialize(writer, Instances);
+                serializer.Serialize(writer, CanvasInstances);
             }
 
             if (path.Contains("_temp"))
@@ -542,142 +433,24 @@ namespace Pimp.ViewModel
             }
         }
 
-        public void SaveEdges(string path)
-        {
-            if (Directory.Exists(Directory.GetParent(path).FullName) == false)
-            {
-                Directory.CreateDirectory(Directory.GetParent(path).FullName);
-            }
-
-            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
-            using (TextWriter writer = new StreamWriter(path))
-            {
-                serializer.Serialize(writer, Edges);
-            }
-        }
-
-        private SerializableDictionary<string, List<PropertyModel>> _propertiesForSerialization = new SerializableDictionary<string, List<PropertyModel>>();
-        public void SaveProperties(string path)
-        {
-            // TODO : 동작이 너무 느린 경우 SelectedInstance 조회를 줄이는 방법을 찾아야 합니다.
-            var lastSelectedInstance = SelectedInstance;
-            _propertiesForSerialization.Clear();
-            
-            foreach (var instance in Instances)
-            {
-                SelectedInstance = instance;
-                _propertiesForSerialization.Add(SelectedInstance.Name, Properties.ToList());
-            }
-            SelectedInstance = lastSelectedInstance;
-
-            XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
-            using (TextWriter writer = new StreamWriter(path))
-            {
-                serializer.Serialize(writer, _propertiesForSerialization);
-            }
-        }
-
-        private void LoadProperties(string path)
-        {
-            XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
-            using (TextReader reader = new StreamReader(path))
-            {
-                var propertiesOfAllIntances = (SerializableDictionary<string, List<PropertyModel>>)serializer.Deserialize(reader);
-
-                // TODO : CanvasMultiInputModuleModel의 동작 정의 필요
-                Instances.OfType<CanvasMultiInputModuleModel>();
-
-                foreach (var instance in Instances.OfType<CanvasOneInputModuleModel>())
-                {
-                    if (propertiesOfAllIntances.TryGetValue(instance.Name, out var properties) == false)
-                    {
-                        continue;
-                    }
-
-                    foreach (var property in properties)
-                    {
-                        if (property.Name == "X" || property.Name == "Y")
-                        {
-                            continue;
-                        }
-
-                        var instanceProperty = instance.ModuleInterface.GetType().GetProperty(property.Name);
-                        object value;
-
-                        if (instanceProperty.PropertyType.IsEnum)
-                        {
-                            value = Enum.ToObject(instanceProperty.PropertyType, property.Value);
-                        }
-                        else
-                        {
-                            value = Convert.ChangeType(property.Value, instanceProperty.PropertyType);
-                        }
-
-                        instanceProperty.SetValue(instance.ModuleInterface, value);
-                    }
-                }
-            }
-        }
-
         List<CanvasInstanceBaseModel> _exceptionInstances = new List<CanvasInstanceBaseModel>();
-        public void LoadAllInstances(string instancePath, string edgePath)
+        public void LoadInstances(string path)
         {
-            _exceptionInstances.Clear();
+            if (DllManager.PimpCSharpAssembly == null)
+            {
+                DllManager.LoadPimpCSharpAssembly();
+            }
 
-            RemoveAllEdges();
             RemoveAllInstances();
-            ClearProperties();
 
-            LoadInstances(instancePath);
-            LoadEdges(edgePath);
-
-            foreach (var instance in _exceptionInstances)
-            {
-                if (instance is CanvasOneInputModuleModel oneInputModule)
-                {
-                    oneInputModule.ModuleInterface = null;
-                }
-                else if (instance is CanvasMultiInputModuleModel multiInputModule)
-                {
-                    multiInputModule.ModuleInterface = null;
-                }
-
-                if (instance?.OutputBitmapSource != null)
-                {
-                    instance.OutputBitmapSource = null;
-                }
-
-                Instances.Remove(instance);
-            }
-
-            if (_exceptionInstances.Count > 0)
-            {
-                SaveInstances(instancePath);
-                SaveEdges(edgePath);
-
-                LoadInstances(instancePath);
-
-                RemoveAllEdges();
-                LoadEdges(edgePath);
-
-                MessageBox.Show($"다음 인스턴스들은 로드에 실패했습니다.\n{string.Join("\n", _exceptionInstances)}");
-            }
-            else
-            {
-                _exceptionInstances.Clear();
-            }
-        }
-
-        private void LoadInstances(string path)
-        {
             // 역직렬화
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasInstanceBaseModel>));
             using (TextReader reader = new StreamReader(path))
             {
-                Instances = (ObservableCollection<CanvasInstanceBaseModel>)serializer.Deserialize(reader);
+                CanvasInstances = (ObservableCollection<CanvasInstanceBaseModel>)serializer.Deserialize(reader);
             }
 
-            foreach (var instance in Instances)
+            foreach (var instance in CanvasInstances)
             {
                 try
                 {
@@ -715,10 +488,53 @@ namespace Pimp.ViewModel
                 LoadProperties($"{Directory.GetParent(path).FullName}\\Properties.xml");
             }
 
-            OnPropertyChanged(nameof(Instances));
+            OnPropertyChanged(nameof(CanvasInstances));
         }
 
-        private void LoadEdges(string path)
+        public void AddEdge(CanvasInstanceBaseModel start, CanvasInstanceBaseModel end)
+        {
+            var edge = new CanvasEdge(start, end);
+            Edges.Add(edge);
+        }
+
+        public void RemoveEdge(CanvasInstanceBaseModel instance, CanvasEdge edge)
+        {
+            if (edge.Start == instance)
+            {
+                edge.End.OutputBitmapSource = null;
+                edge.End.Run();
+            }
+
+            if (edge.End is CanvasOneInputModuleModel endModule)
+            {
+                endModule.CanConnect = true;
+            }
+
+            else if (edge.End is CanvasResultModel resultModule)
+            {
+                resultModule?.DeleteResult(instance.Name);
+                edge.Start.NameChanged -= resultModule.ParentNameChanged;
+            }
+
+            edge.Start.OutputBitmapSourceChanged -= edge.End.OnOutputBitmapSourceChanged;
+            Edges.Remove(edge);
+        }
+
+        public void SaveEdges(string path)
+        {
+            if (Directory.Exists(Directory.GetParent(path).FullName) == false)
+            {
+                Directory.CreateDirectory(Directory.GetParent(path).FullName);
+            }
+
+            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
+            using (TextWriter writer = new StreamWriter(path))
+            {
+                serializer.Serialize(writer, Edges);
+            }
+        }
+
+        public void LoadEdges(string path)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<CanvasEdge>));
             using (TextReader reader = new StreamReader(path))
@@ -726,8 +542,8 @@ namespace Pimp.ViewModel
                 var edges = (ObservableCollection<CanvasEdge>)serializer.Deserialize(reader);
                 foreach (var edge in edges)
                 {
-                    var edgeStart = Instances.FirstOrDefault(instance => instance.Name == edge.Start.Name);
-                    var edgeEnd = Instances.FirstOrDefault(instance => instance.Name == edge.End.Name);
+                    var edgeStart = CanvasInstances.FirstOrDefault(instance => instance.Name == edge.Start.Name);
+                    var edgeEnd = CanvasInstances.FirstOrDefault(instance => instance.Name == edge.End.Name);
 
                     if (_exceptionInstances.Contains(edge.Start) || _exceptionInstances.Contains(edge.End) || edgeStart == null || edgeEnd == null)
                     {
@@ -770,49 +586,6 @@ namespace Pimp.ViewModel
             }
         }
 
-        public void RemoveAllEdges()
-        {
-            // 선택한 인스턴스와 연결된 간선을 찾아 제거합니다.
-            var connectedEdges = Edges.ToList();
-            foreach (var edge in connectedEdges)
-            {
-                if (edge.End is CanvasOneInputModuleModel endOneInputModule)
-                {
-                    edge.End.OutputBitmapSource = null;
-                    
-                    // (edge.End as CanvasModuleModel)?.Run();
-                    endOneInputModule.CanConnect = true;
-                    endOneInputModule.ModuleInterface = null;
-                }
-                else if (edge.End is CanvasMultiInputModuleModel endMultiInputModule)
-                {
-                    // TODO : MultiInputModuleModel 정확한 동작 기입 필요
-                    edge.End.OutputBitmapSource = null;
-
-                    // (edge.End as CanvasModuleModel)?.Run();
-                    endMultiInputModule.ModuleInterface = null;
-                }
-                else if (edge.End is CanvasResultModel resultModule)
-                {
-                    edge.End.OutputBitmapSource = null;
-                    // (edge.End as CanvasResultModel)?.Run();
-
-                    resultModule.DeleteResult(edge.End.Name);
-                    edge.Start.NameChanged -= resultModule.ParentNameChanged;
-                }
-                else
-                {
-                    edge.End.OutputBitmapSource = null;
-                    // TODO : 동작 정의 필요
-                }
-
-                edge.Start.OutputBitmapSourceChanged -= edge.End.OnOutputBitmapSourceChanged;
-
-                Edges.Remove(edge);
-            }
-        }
-
-
         private CanvasInstanceBaseModel _copiedInstance;
 
         public void CopySelectedInstance()
@@ -822,17 +595,17 @@ namespace Pimp.ViewModel
 
         public void PasteCopiedInstance()
         {
-            if(_copiedInstance == null)
+            if (_copiedInstance == null)
             {
                 return;
             }
 
             AddInstanceToCanvas(_copiedInstance.FileModel, new Point(_copiedInstance.X + 50, _copiedInstance.Y + 50));
 
-            var instance = Instances.Last();
+            var instance = CanvasInstances.Last();
             if (instance is CanvasImageModel imageModel)
             {
-                
+
             }
             else if (instance is CanvasOneInputModuleModel oneInputModuleModel)
             {
@@ -842,7 +615,7 @@ namespace Pimp.ViewModel
                 {
                     var targetModuleInterfaceProperties = oneInputModuleModel.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
                     var copyModuleInterfaceProperties = copyInstance.ModuleInterface.GetType().GetProperties().Where(p => (Attribute.IsDefined(p, typeof(UIHiddenAttribute)) == false));
-                    
+
                     foreach (var targetProperty in targetModuleInterfaceProperties)
                     {
                         var copyProperty = copyModuleInterfaceProperties.FirstOrDefault(p => p.Name == targetProperty.Name);
@@ -876,13 +649,97 @@ namespace Pimp.ViewModel
                     }
                 }
             }
-            else if(instance is CanvasResultModel resultModel)
+            else if (instance is CanvasResultModel resultModel)
             {
                 // TODO : 동작 정의 필요
                 var copyInstance = (_copiedInstance as CanvasResultModel);
                 resultModel.ImageFormat = copyInstance.ImageFormat;
                 resultModel.ResultPath = copyInstance.ResultPath;
             }
+        }
+
+        public BitmapSource GetBitmapSource(string imagePath)
+        {
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(imagePath, UriKind.Absolute);
+            bitmap.EndInit();
+            return bitmap;
+        }
+
+        private SerializableDictionary<string, List<PropertyModel>> _propertiesForSerialization = new SerializableDictionary<string, List<PropertyModel>>();
+        public void SaveProperties(string path)
+        {
+            // TODO : 동작이 너무 느린 경우 SelectedInstance 조회를 줄이는 방법을 찾아야 합니다.
+            var lastSelectedInstance = SelectedInstance;
+
+            foreach (var instance in CanvasInstances)
+            {
+                SelectedInstance = instance;
+                _propertiesForSerialization.Add(SelectedInstance.Name, Properties.ToList());
+            }
+            SelectedInstance = lastSelectedInstance;
+
+            XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
+            using (TextWriter writer = new StreamWriter(path))
+            {
+                serializer.Serialize(writer, _propertiesForSerialization);
+            }
+
+            _propertiesForSerialization.Clear();
+        }
+
+        private void LoadProperties(string path)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, List<PropertyModel>>));
+            using (TextReader reader = new StreamReader(path))
+            {
+                var propertiesOfAllIntances = (SerializableDictionary<string, List<PropertyModel>>)serializer.Deserialize(reader);
+
+                // TODO : CanvasMultiInputModuleModel의 동작 정의 필요
+                foreach (var instance in CanvasInstances.OfType<CanvasOneInputModuleModel>())
+                {
+                    if (propertiesOfAllIntances.TryGetValue(instance.Name, out var properties) == false)
+                    {
+                        continue;
+                    }
+
+                    foreach (var property in properties)
+                    {
+                        if (property.Name == "X" || property.Name == "Y")
+                        {
+                            continue;
+                        }
+
+                        var instanceProperty = instance.ModuleInterface.GetType().GetProperty(property.Name);
+                        object value;
+
+                        if (instanceProperty.PropertyType.IsEnum)
+                        {
+                            value = Enum.ToObject(instanceProperty.PropertyType, property.Value);
+                        }
+                        else
+                        {
+                            value = Convert.ChangeType(property.Value, instanceProperty.PropertyType);
+                        }
+
+                        instanceProperty.SetValue(instance.ModuleInterface, value);
+                    }
+                }
+            }
+        }
+
+        public void ClearProperties()
+        {
+            // Properties 컬렉션을 Clear합니다.
+            foreach (var propertyModel in Properties)
+            {
+                propertyModel.PropertyChanged -= PropertyModel_PropertyChanged;
+                propertyModel.PropertyChanged -= PropertyModuleModel_PropertyChanged;
+            }
+
+            Properties.Clear();
+            PropertiesView.Refresh();
         }
     }
 }

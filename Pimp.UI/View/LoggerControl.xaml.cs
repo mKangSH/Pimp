@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Pimp.Common.Log;
+using Pimp.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,8 @@ namespace Pimp.View
         public LoggerControl()
         {
             InitializeComponent();
+
+            DataContext = new LoggerViewModel(Logger.Instance);
         }
 
         private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)

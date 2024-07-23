@@ -7,18 +7,6 @@
              xmlns:local="clr-namespace:Pimp.View"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../UI/Resources/PropertyTemplate.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            <ui:PropertyTemplateSelector x:Key="PropertyTemplateSelector"
-                                         DefaultTemplate="{StaticResource DefaultTemplate}"
-                                         BooleanTemplate="{StaticResource BooleanTemplate}"
-                                         NumericTemplate="{StaticResource NumericTemplate}"
-                                         EnumTemplate="{StaticResource EnumTemplate}"/>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

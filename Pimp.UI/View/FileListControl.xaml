@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ui="clr-namespace:Pimp.UI"
+             xmlns:viewModel="clr-namespace:Pimp.ViewModel"
              xmlns:helper="clr-namespace:Pimp.Helper"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -16,10 +17,14 @@
         </DataTemplate>
         <ui:FileTemplateSelector x:Key="FileTemplateSelector" />
     </UserControl.Resources>
-    
+
     <UserControl.InputBindings>
         <KeyBinding Key="Delete" Command="{Binding DeleteSelectedFileCommand}"/>
     </UserControl.InputBindings>
+
+    <UserControl.DataContext>
+        <viewModel:FileViewModel/>
+    </UserControl.DataContext>
     
     <DockPanel LastChildFill="True">
         <TreeView DockPanel.Dock="Left" ItemsSource="{Binding Folders}" helper:TreeViewHelper.SelectedItem="{Binding SelectedFolder, Mode=TwoWay}" Padding="15">

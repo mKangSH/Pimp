@@ -181,5 +181,10 @@ namespace Pimp.CSharpAssembly.Modules
 
             return template;
         }
+
+        public AddCSharpFileDialogViewModel()
+        {
+
+        }
     }
 }

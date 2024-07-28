@@ -7,8 +7,16 @@ using System.Threading.Tasks;
 
 namespace Pimp.UI.Model
 {
+    public struct CanvasPosition
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+
     public class PimpObject
     {
+        public CanvasPosition CanvasPos { get; set; }
+
         public Vector3 Position { get; set; }
 
         public Vector3 Rotation { get; set; }

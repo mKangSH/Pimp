@@ -14,14 +14,7 @@ namespace Pimp.UI.Manager
         private Managers() { }
 
         private static Managers s_instance;
-        private static Managers Instance 
-        { 
-            get 
-            { 
-                Init();
-                return s_instance; 
-            } 
-        }
+        private static Managers Instance { get { Init(); return s_instance; } }
 
         #region Core
         private ResourceManager _resource = new ResourceManager();

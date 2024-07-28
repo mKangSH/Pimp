@@ -13,8 +13,8 @@
     </UserControl.DataContext>
 
     <Canvas x:Name="canvas" Width="10000" Height="10000" Background="#3A3A3A" 
-            MouseRightButtonDown="MouseRightButtonDown"
-            MouseLeftButtonDown="MouseLeftButtonDown">
+            MouseRightButtonDown="MouseRightButtonDown_Canvas"
+            MouseLeftButtonDown="MouseLeftButtonDown_Canvas">
         <ItemsControl ItemsSource="{Binding GridLines}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -32,23 +32,49 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <ListBox x:Name="MyListBox" Width="200" Height="400" Visibility="Collapsed" ItemsSource="{Binding ProcessingUnitMethods}">
-            <ListBox.ItemTemplate>
+        <StackPanel x:Name="MethodListStackPanel" Orientation="Vertical" Visibility="Collapsed">
+            <TextBox x:Name="SearchBox" Width="200" Height="30" TextChanged="SearchBox_TextChanged"/>
+            <ListBox x:Name="MethodListBox" 
+                     Width="200"
+                     Height="400"
+                     MouseDoubleClick="MouseDoubleClick_MethodListBox"
+                     ItemsSource="{Binding ProcessingUnitMethods}">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Visibility}" Value="Collapsed">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding PimpObjects}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style>
+                    <Setter Property="Canvas.Left" Value="{Binding CanvasPos.X}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding CanvasPos.Y}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Visibility}" Value="Collapsed">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <Rectangle Width="100" Height="100" Fill="AliceBlue"/>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <TextBox x:Name="SearchBox" Width="200" Height="30" Visibility="Collapsed" TextChanged="SearchBox_TextChanged"/>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Canvas>
 </UserControl>

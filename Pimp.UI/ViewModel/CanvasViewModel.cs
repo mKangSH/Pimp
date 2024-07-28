@@ -24,38 +24,24 @@ using System.Xml.Serialization;
 
 namespace Pimp.ViewModel
 {
-    public class MethodInfoWrapper : ObservableObject
-    {
-        public MethodInfo MethodInfo { get; }
-
-        private Visibility _visibility;
-        public Visibility Visibility
-        {
-            get => _visibility;
-            set => SetProperty(ref _visibility, value);
-        }
-
-        public MethodInfoWrapper(MethodInfo methodInfo)
-        {
-            MethodInfo = methodInfo;
-            _visibility = Visibility.Visible; // 기본값을 Visible로 설정
-        }
-
-        public string Name => MethodInfo.Name;
-    }
-
     public class CanvasViewModel : ObservableObject
     {
         public ObservableCollection<MethodInfoWrapper> ProcessingUnitMethods { get; }
-        public ObservableCollection<GridLine> GridLines { get; }
+        public ObservableCollection<GridLine> GridLines { get; } = new ObservableCollection<GridLine>();
+
+        public ObservableCollection<PimpObject> PimpObjects { get; } = new ObservableCollection<PimpObject>();
 
         public CanvasViewModel()
         {
+            InitGridLines();
+
             Type type = typeof(OpenCvSharp.Cv2);
             MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Static);
             ProcessingUnitMethods = new ObservableCollection<MethodInfoWrapper>(methods.Select(m => new MethodInfoWrapper(m)));
+        }
 
-            GridLines = new ObservableCollection<GridLine>();
+        private void InitGridLines()
+        {
             for (int i = 0; i < 1000; i++)
             {
                 if (i % 10 == 0)

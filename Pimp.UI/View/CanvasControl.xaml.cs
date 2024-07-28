@@ -1,4 +1,5 @@
 ﻿using Pimp.Model;
+using Pimp.UI.Model;
 using Pimp.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -28,36 +29,32 @@ namespace Pimp.View
         {
             InitializeComponent();
 
-            MyListBox.Items.SortDescriptions.Add(new SortDescription("Visibility", ListSortDirection.Ascending));
-            MyListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            MethodListBox.Items.SortDescriptions.Add(new SortDescription("Visibility", ListSortDirection.Ascending));
+            MethodListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
         }
 
-        private void MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void MouseLeftButtonDown_Canvas(object sender, MouseButtonEventArgs e)
         {
-            MyListBox.Visibility = Visibility.Collapsed;
-            SearchBox.Visibility = Visibility.Collapsed;
+            MethodListStackPanel.Visibility = Visibility.Collapsed;
         }
 
-        private void MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void MouseRightButtonDown_Canvas(object sender, MouseButtonEventArgs e)
         {
             // 마우스 클릭 위치 가져오기
             Point clickPosition = e.GetPosition(canvas);
 
             // ListBox와 TextBox 위치 설정
-            Canvas.SetLeft(MyListBox, clickPosition.X);
-            Canvas.SetTop(MyListBox, clickPosition.Y + 30);
-            Canvas.SetLeft(SearchBox, clickPosition.X);
-            Canvas.SetTop(SearchBox, clickPosition.Y); // ListBox 위에 TextBox 배치
+            Canvas.SetLeft(MethodListStackPanel, clickPosition.X);
+            Canvas.SetTop(MethodListStackPanel, clickPosition.Y);
 
             // ListBox와 TextBox 표시
-            MyListBox.Visibility = Visibility.Visible;
-            SearchBox.Visibility = Visibility.Visible;
+            MethodListStackPanel.Visibility = Visibility.Visible;
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string filter = SearchBox.Text.ToLower();
-            foreach (MethodInfoWrapper item in MyListBox.Items)
+            foreach (MethodInfoWrapper item in MethodListBox.Items)
             {
                 if (item.Name.ToLower().Contains(filter))
                 {
@@ -69,15 +66,26 @@ namespace Pimp.View
                 }
             }
 
-            MyListBox.Items.SortDescriptions.Clear();
-            MyListBox.Items.SortDescriptions.Add(new SortDescription("Visibility", ListSortDirection.Ascending));
-            MyListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+            MethodListBox.Items.SortDescriptions.Clear();
+            MethodListBox.Items.SortDescriptions.Add(new SortDescription("Visibility", ListSortDirection.Ascending));
+            MethodListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
 
             // 첫 번째 항목을 스크롤 뷰로 가져와서 스크롤을 맨 위로 올립니다.
-            if (MyListBox.Items.Count > 0)
+            if (MethodListBox.Items.Count > 0)
             {
-                MyListBox.ScrollIntoView(MyListBox.Items[0]);
+                MethodListBox.ScrollIntoView(MethodListBox.Items[0]);
             }
+        }
+
+        private void MouseDoubleClick_MethodListBox(object sender, MouseButtonEventArgs e)
+        {
+            // 마우스 클릭 위치 가져오기
+            Point clickPosition = e.GetPosition(canvas);
+
+            MethodListStackPanel.Visibility = Visibility.Collapsed;
+
+            // Test용 코드
+            (DataContext as CanvasViewModel)?.PimpObjects.Add(new PimpObject() { CanvasPos = new CanvasPosition() { X = clickPosition.X, Y = clickPosition.Y} });
         }
     }
 }

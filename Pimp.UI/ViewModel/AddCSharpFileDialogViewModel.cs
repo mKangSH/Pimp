@@ -1,5 +1,4 @@
-﻿using Pimp.Common.Command;
-using Pimp.Model;
+﻿using Pimp.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,62 +10,11 @@ using System.Windows.Input;
 
 namespace Pimp.ViewModel
 {
-    public class AddCSharpFileDialogViewModel : INotifyPropertyChanged
+    public class AddCSharpFileDialogViewModel
     {
-        public event EventHandler HideDialogRequested;
-        // INotifyPropertyChanged 구현
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
+        public AddCSharpFileDialogViewModel()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private FileViewModel _fileViewModel;
-
-        public ObservableCollection<CSharpTemplate> Templates { get; private set; }
-
-        private CSharpTemplate _selectedTemplate;
-
-        public CSharpTemplate SelectedTemplate
-        {
-            get { return _selectedTemplate; }
-            set
-            {
-                if (_selectedTemplate != value)
-                {
-                    _selectedTemplate = value;
-                    OnPropertyChanged("SelectedTemplate");
-                }
-            }
-        }
-
-        public ICommand AddCSharpFileCommand { get; private set; }
-
-        public string FileName { get; set; }
-
-        public AddCSharpFileDialogViewModel(FileViewModel fileViewModel)
-        {
-            _fileViewModel = fileViewModel;
-
-            AddCSharpFileCommand = new RelayCommand<object>(AddCSharpFile);
-
-            Templates = new ObservableCollection<CSharpTemplate>
-            {
-                new CSharpTemplate{ Name = "OneInputModule", Description = "단일 입력 모듈"},
-                new CSharpTemplate{ Name = "MultiInputModule", Description = "다중 입력 모듈"},
-            };
-        }
-
-        private void AddCSharpFile(object obj)
-        {
-            string template = GetTemplate(SelectedTemplate.Name, FileName);
-
-            // C# 파일을 추가하는 코드
-            string path = System.IO.Path.Combine(_fileViewModel.SelectedFolder.FolderPath, FileName + ".cs");
-            System.IO.File.WriteAllText(path, template, Encoding.UTF8);
-
-            HideDialogRequested?.Invoke(this, EventArgs.Empty);
+            
         }
 
         private string GetTemplate(string name, string fileName)
@@ -180,11 +128,6 @@ namespace Pimp.CSharpAssembly.Modules
             }
 
             return template;
-        }
-
-        public AddCSharpFileDialogViewModel()
-        {
-
         }
     }
 }

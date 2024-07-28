@@ -11,7 +11,7 @@ using System.Windows.Data;
 using Pimp.Common.Models;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Pimp.Common.Command;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Pimp.ViewModel
 {

@@ -42,9 +42,8 @@
                 <GridSplitter Grid.Row="1" Grid.ColumnSpan="3" Height="5" HorizontalAlignment="Stretch" ResizeDirection="Rows" Background="MediumPurple"/>
 
                 <Border BorderBrush="Black" BorderThickness="3" CornerRadius="10" Margin="2,2,2,2" Grid.Column="0" Grid.Row="0">
-                    <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" 
-                                  PanningMode="None" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                        <view:CanvasControl x:Name="CanvasView" Margin="2" Drop="CanvasControl_Drop" AllowDrop="True"/>
+                    <ScrollViewer x:Name="MainScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" PanningMode="None">
+                        <view:CanvasControl x:Name="CanvasView" Margin="2" AllowDrop="True"/>
                     </ScrollViewer>
                 </Border>
                 
@@ -61,14 +60,8 @@
                 </Border>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,20,0">
-                    <Button 
-                        Style="{StaticResource SaveAndLoadButtonStyle}" Width="60" Height="60" Content="Save" Foreground="AliceBlue" FontSize="14"/>
-                    <Button 
-                        Style="{StaticResource SaveAndLoadButtonStyle}" Width="60" Height="60" Content="Load" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
-                    
-                    <!-- Assembly Load, Unload 테스트용 커맨드, Resource Memory 정상 해제 되는지 확인할 때 사용-->
-                    <!--<Button Command="{Binding AssemblyUnloadCommand}" Style="{StaticResource CircleButtonStyle}" Width="60" Height="60" Content="AUnload" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
-                    <Button Command="{Binding AssemblyLoadCommand}" Style="{StaticResource CircleButtonStyle}" Width="60" Height="60" Content="ALoad" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>-->
+                    <Button Command="{Binding SaveCommand}" Style="{StaticResource SaveAndLoadButtonStyle}" Width="60" Height="60" Content="Save" Foreground="AliceBlue" FontSize="14"/>
+                    <Button Command="{Binding LoadCommand}" Style="{StaticResource SaveAndLoadButtonStyle}" Width="60" Height="60" Content="Load" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>

@@ -1,5 +1,4 @@
 ﻿using Pimp.Model;
-using Pimp.UI.Manager;
 using Pimp.UI;
 using Pimp.View;
 using Pimp.ViewModel;
@@ -19,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Pimp.UI.Watcher;
 
 namespace Pimp
 {
@@ -30,70 +30,8 @@ namespace Pimp
         public MainWindow()
         {
             InitializeComponent();
-            this.PreviewKeyDown += MainWindow_PreviewKeyDown;
 
-            DllManager.CanvasViewModel = (CanvasView.DataContext as CanvasViewModel);
-            DllManager.InitFileSystemWatcher(GlobalConst.DllPath);
-
-            CanvasView.ScrollViewer = ScrollViewer;
-
-            ScrollViewer.ScrollToVerticalOffset(ScrollViewer.ScrollableHeight / 2);
-            ScrollViewer.ScrollToHorizontalOffset(ScrollViewer.ScrollableWidth / 2);
-        }
-
-        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            e.Handled = true;
-        }
-
-        private void CanvasControl_Drop(object sender, DragEventArgs e)
-        {
-            var file = e.Data.GetData(typeof(FileModel)) as FileModel;
-            if (file != null)
-            {
-                // ViewModel에 파일을 추가하는 메서드를 호출합니다.
-                // 이 메서드는 ViewModel에서 구현해야 합니다.
-                Point dropPosition = e.GetPosition(sender as IInputElement);
-
-                (this.CanvasView.DataContext as CanvasViewModel)?.AddInstanceToCanvas(file, dropPosition);
-            }
-        }
-
-        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Delete)
-            {
-                var originalSourceType = (e.OriginalSource as Control)?.GetType();
-                
-                if (originalSourceType == null)
-                {
-                    return;
-                }
-
-                // Now you can check the type of the original source
-                if (originalSourceType == typeof(TextBox))
-                {
-                    // The event was raised by a TextBox
-                }
-                else if (originalSourceType == typeof(UserControl))
-                {
-                    // The event was raised by a UserControl
-                }
-                else if (originalSourceType == typeof(ListBoxItem) || originalSourceType == typeof(ScrollViewer))
-                {
-                    (this.CanvasView.DataContext as CanvasViewModel)?.RemoveSelectedInstance();
-                    //this.CanvasControl.DetailViewWindow.Hide();
-                }
-                // Add more checks as needed
-            }
-            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                (this.CanvasView.DataContext as CanvasViewModel)?.CopySelectedInstance();
-            }
-            else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                (this.CanvasView.DataContext as CanvasViewModel)?.PasteCopiedInstance();
-            }
+            DllWatcher watcher = new DllWatcher(GlobalConst.DllPath);
         }
     }
 }

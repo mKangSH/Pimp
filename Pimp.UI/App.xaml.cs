@@ -2,7 +2,8 @@
 using Pimp.Model;
 using Pimp.UI;
 using Pimp.UI.Manager;
-using Pimp.UI.View;
+using Pimp.UI.Manager.Core;
+using Pimp.UI.Model;
 using Pimp.View;
 using Pimp.ViewModel;
 using System;
@@ -32,6 +33,8 @@ namespace Pimp
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            App.Current.Dispatcher.Thread.Name = "UI Thread";
         }
 
         protected override void OnExit(ExitEventArgs e)

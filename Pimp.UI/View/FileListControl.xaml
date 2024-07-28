@@ -5,41 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ui="clr-namespace:Pimp.UI"
              xmlns:viewModel="clr-namespace:Pimp.ViewModel"
-             xmlns:helper="clr-namespace:Pimp.Helper"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <DataTemplate x:Key="ImageFileTemplate">
-            <Image Source="{Binding FilePath}" />
-        </DataTemplate>
-        <DataTemplate x:Key="CSharpFileTemplate">
-            <TextBox Text="{Binding FileContent, Mode=OneWay}" IsReadOnly="True" />
-        </DataTemplate>
-        <ui:FileTemplateSelector x:Key="FileTemplateSelector" />
-    </UserControl.Resources>
-
-    <UserControl.InputBindings>
-        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedFileCommand}"/>
-    </UserControl.InputBindings>
-
     <UserControl.DataContext>
         <viewModel:FileViewModel/>
     </UserControl.DataContext>
     
     <DockPanel LastChildFill="True">
-        <TreeView DockPanel.Dock="Left" ItemsSource="{Binding Folders}" helper:TreeViewHelper.SelectedItem="{Binding SelectedFolder, Mode=TwoWay}" Padding="15">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding SubFolders}">
-                    <TextBlock Text="{Binding FolderName}" />
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
+        <TreeView>
+            <!-- Resources 하위 폴더 모두 표시 -->
         </TreeView>
         
-        <ContentControl Width="400" DockPanel.Dock="Right" Content="{Binding SelectedFile}" ContentTemplateSelector="{StaticResource FileTemplateSelector}"/>
+        <!-- 선택한 파일 내용 미리 보기 -->
+        <ContentControl Width="400" DockPanel.Dock="Right"/>
         
-        <ListView DockPanel.Dock="Right" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Padding="15"
-                  MouseMove="ListView_MouseMove"
-                  MouseDoubleClick="ListView_DoubleClick"
+        <ListView DockPanel.Dock="Right" Padding="15"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemsPanel>
@@ -47,16 +27,9 @@
                     <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Add C# File" Command="{Binding ShowAddCSharpFileDialogCommand}"/>
-                </ContextMenu>
-            </ListView.ContextMenu>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
-                        <Image Source="{Binding FileIcon}" Width="60" Height="60" Stretch="Uniform"/>
-                        <TextBlock Text="{Binding FileName}" Margin="5,0,0,0" Width="75"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

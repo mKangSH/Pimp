@@ -20,36 +20,20 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Grid.Column="0" BorderBrush="Black" BorderThickness="2" Margin="5">
-                <Image Source="D:\CodeProject\ImageProcessing\Pimp.UI\pimp_Main2.ico" Width="30" Height="30"/>
+                <Image Source="D:\CodeProject\Pimp\Pimp.UI\Resources\Icons\pimp_Main2.ico" Width="30" Height="30"/>
             </Border>
             <TextBlock Grid.Column="1" Text="Pimp" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Margin="10, 0, 0, 0"/>
         </Grid>
         
-        <!--<Menu Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Background="Transparent" shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="15, 10, 0, 5">
-            <MenuItem Header="File" VerticalAlignment="Center" FontWeight="Bold" FontSize="16">
-                <MenuItem Header="New"/>
-                <MenuItem Header="Open" />
-                <MenuItem Header="Save" />
-                <Separator />
-                <MenuItem Header="Exit"/>
-            </MenuItem>
-            <MenuItem Header="Edit" FontWeight="Bold" FontSize="16">
-                <MenuItem Header="Cut"/>
-                <MenuItem Header="Copy"/>
-                <MenuItem Header="Paste"/>
-            </MenuItem>
-            --><!-- More menu items... --><!--
-        </Menu>-->
-
         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" shell:WindowChrome.IsHitTestVisibleInChrome="True">
-            <Button Width="40" Click="Minimize_Click" Background="Transparent" BorderThickness="0" FontSize="14">ㅡ
-                <!--<Image Source="/path/to/your/minimize/icon.png" Width="16" Height="16"/>-->
+            <Button Width="40" Click="Minimize_Click" Background="Transparent" BorderThickness="0" FontSize="14">
+                ㅡ
             </Button>
-            <Button Width="40" Click="Maximize_Click" Background="Transparent" BorderThickness="0" FontSize="14">ㅁ
-                <!--<Image Source="/path/to/your/maximize/icon.png" Width="16" Height="16"/>-->
+            <Button Width="40" Click="Maximize_Click" Background="Transparent" BorderThickness="0" FontSize="14">
+                ㅁ
             </Button>
-            <Button Width="40" Click="Close_Click" Background="Transparent" BorderThickness="0" FontSize="14">X
-                <!--<Image Source="/path/to/your/close/icon.png" Width="16" Height="16"/>-->
+            <Button Width="40" Click="Close_Click" Background="Transparent" BorderThickness="0" FontSize="14">
+                X
             </Button>
         </StackPanel>
     </Grid>

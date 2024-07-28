@@ -13,22 +13,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox ItemsSource="{Binding CanvasInstances}" SelectedItem="{Binding SelectedInstance}" Margin="3">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <EventSetter Event="PreviewKeyDown" Handler="ListBoxItem_PreviewKeyDown"/>
-                </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <!-- Customize this template to display each instance -->
-                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" IsHitTestVisible="False" BorderThickness="0" Background="Transparent"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+        <ListBox Margin="3">
         </ListBox>
-
-        <!--<Border Grid.Column="1" BorderThickness="0.5" BorderBrush="DimGray" Margin="0,3,0,4">
-            <ItemsControl ItemsSource="{Binding PropertiesView}" ItemTemplateSelector="{StaticResource PropertyTemplateSelector}" Margin="10"/>
-        </Border>-->
     </Grid>
 </UserControl>

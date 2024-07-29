@@ -1,9 +1,7 @@
 ﻿using Pimp.Common.Log;
-using Pimp.Model;
 using Pimp.UI;
 using Pimp.UI.Manager;
 using Pimp.UI.Manager.Core;
-using Pimp.UI.Model;
 using Pimp.View;
 using Pimp.ViewModel;
 using System;

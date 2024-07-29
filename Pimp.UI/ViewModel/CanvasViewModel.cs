@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Pimp.Common.Attributes;
 using Pimp.Common.Log;
-using Pimp.Model;
 using Pimp.UI;
 using Pimp.UI.Manager;
-using Pimp.UI.Model;
+using Pimp.UI.Models;
+using Pimp.UI.Models.CanvasModels;
 using Pimp.View;
 using System;
 using System.Collections.Generic;
@@ -26,10 +26,10 @@ namespace Pimp.ViewModel
 {
     public class CanvasViewModel : ObservableObject
     {
-        public ObservableCollection<MethodInfoWrapper> ProcessingUnitMethods { get; }
+        public ObservableCollection<MethodInfoObject> ProcessingUnitMethods { get; }
         public ObservableCollection<GridLine> GridLines { get; } = new ObservableCollection<GridLine>();
 
-        public ObservableCollection<PimpObject> PimpObjects { get; } = new ObservableCollection<PimpObject>();
+        public ObservableCollection<MethodInfoObject> CanvasMethodInfoInstances { get; } = new ObservableCollection<MethodInfoObject>();
 
         public CanvasViewModel()
         {
@@ -37,7 +37,7 @@ namespace Pimp.ViewModel
 
             Type type = typeof(OpenCvSharp.Cv2);
             MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Static);
-            ProcessingUnitMethods = new ObservableCollection<MethodInfoWrapper>(methods.Select(m => new MethodInfoWrapper(m)));
+            ProcessingUnitMethods = new ObservableCollection<MethodInfoObject>(methods.Select(m => new MethodInfoObject(m)));
         }
 
         private void InitGridLines()

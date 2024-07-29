@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pimp.UI.Model
+namespace Pimp.UI.Models.TestModels
 {
     public partial class ProcessingUnit
     {
@@ -28,7 +28,7 @@ namespace Pimp.UI.Model
         {
         }
 
-        public T test4<T>(T a) 
+        public T test4<T>(T a)
         {
             T b = a;
 

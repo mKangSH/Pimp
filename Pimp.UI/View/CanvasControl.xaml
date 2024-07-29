@@ -32,7 +32,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <StackPanel x:Name="MethodListStackPanel" Orientation="Vertical" Visibility="Collapsed">
+        <StackPanel x:Name="MethodListStackPanel" Orientation="Vertical" Visibility="Collapsed" Panel.ZIndex="100">
             <TextBox x:Name="SearchBox" Width="200" Height="30" TextChanged="SearchBox_TextChanged"/>
             <ListBox x:Name="MethodListBox" 
                      Width="200"
@@ -58,7 +58,7 @@
             </ListBox>
         </StackPanel>
 
-        <ItemsControl ItemsSource="{Binding PimpObjects}">
+        <ItemsControl x:Name="itemsControl" ItemsSource="{Binding CanvasMethodInfoInstances}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Canvas/>
@@ -72,7 +72,15 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Width="100" Height="100" Fill="AliceBlue"/>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding Name}" Background="MediumPurple" TextAlignment="Center" Padding="20,0,20,0" FontSize="16" FontWeight="SemiBold" FontFamily="Consolas"/>
+                        <StackPanel Orientation="Horizontal">
+                            <ListView ItemsSource="{Binding MethodParameters}" Background="White">
+
+                            </ListView>
+                            <TextBlock Text="{Binding MethodReturnParameter}" Background="White"/>
+                        </StackPanel>
+                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

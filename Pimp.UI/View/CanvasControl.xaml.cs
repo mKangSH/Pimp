@@ -1,5 +1,5 @@
-﻿using Pimp.Model;
-using Pimp.UI.Model;
+﻿using Pimp.UI.Models;
+using Pimp.UI.Models.CanvasModels;
 using Pimp.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -40,6 +40,11 @@ namespace Pimp.View
 
         private void MouseRightButtonDown_Canvas(object sender, MouseButtonEventArgs e)
         {
+            if((e.OriginalSource as FrameworkElement)?.DataContext is PimpCanvasObject)
+            {
+                return;
+            }
+
             // 마우스 클릭 위치 가져오기
             Point clickPosition = e.GetPosition(canvas);
 
@@ -54,7 +59,7 @@ namespace Pimp.View
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string filter = SearchBox.Text.ToLower();
-            foreach (MethodInfoWrapper item in MethodListBox.Items)
+            foreach (MethodInfoObject item in MethodListBox.Items)
             {
                 if (item.Name.ToLower().Contains(filter))
                 {
@@ -81,11 +86,17 @@ namespace Pimp.View
         {
             // 마우스 클릭 위치 가져오기
             Point clickPosition = e.GetPosition(canvas);
+            
+            MethodInfoObject methodInfoObject = ((e.OriginalSource as FrameworkElement)?.DataContext as MethodInfoObject);
+            if(methodInfoObject.Visibility == Visibility.Collapsed || methodInfoObject == null)
+            {
+                return;
+            }
 
             MethodListStackPanel.Visibility = Visibility.Collapsed;
 
-            // Test용 코드
-            (DataContext as CanvasViewModel)?.PimpObjects.Add(new PimpObject() { CanvasPos = new CanvasPosition() { X = clickPosition.X, Y = clickPosition.Y} });
+            methodInfoObject.CanvasPos = new CanvasPosition { X = clickPosition.X, Y = clickPosition.Y };
+            (DataContext as CanvasViewModel)?.CanvasMethodInfoInstances.Add(methodInfoObject);
         }
     }
 }

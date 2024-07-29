@@ -1,5 +1,4 @@
-﻿using Pimp.Model;
-using Pimp.ViewModel;
+﻿using Pimp.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

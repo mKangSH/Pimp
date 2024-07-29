@@ -1,5 +1,4 @@
-﻿using Pimp.Model;
-using Pimp.UI;
+﻿using Pimp.UI;
 using Pimp.View;
 using Pimp.ViewModel;
 using System;

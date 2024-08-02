@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Pimp.Common.Attributes;
 using Pimp.Common.Log;
 using Pimp.UI;
@@ -16,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -39,7 +41,7 @@ namespace Pimp.ViewModel
             MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Static);
             ProcessingUnitMethods = new ObservableCollection<MethodInfoObject>(methods.Select(m => new MethodInfoObject(m)));
         }
-
+        
         private void InitGridLines()
         {
             for (int i = 0; i < 1000; i++)
@@ -58,14 +60,3 @@ namespace Pimp.ViewModel
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-

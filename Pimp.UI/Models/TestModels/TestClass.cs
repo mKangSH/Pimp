@@ -16,5 +16,27 @@ namespace Pimp.UI.Models.TestModels
         public void TestMethod1()
         {
         }
+
+        public void TestMethod2(int a, out int b)
+        {
+            b = a;
+        }
+
+        public void TestMethod3(int a, int b, int c, int d, int e)
+        {
+            b = a;
+        }
+
+        public void BranchMethod(bool condition)
+        {
+            if (condition)
+            {
+                Console.WriteLine("True");
+            }
+            else
+            {
+                Console.WriteLine("False");
+            }
+        }
     }
 }

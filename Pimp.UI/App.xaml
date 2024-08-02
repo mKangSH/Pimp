@@ -6,8 +6,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
-                <ResourceDictionary Source="Resources/Templates/CanvasInstanceTemplate.xaml" />
-                <ResourceDictionary Source="Resources/Templates/PropertyTemplate.xaml"/>
+                <ResourceDictionary Source="Resources/Templates/CanvasTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

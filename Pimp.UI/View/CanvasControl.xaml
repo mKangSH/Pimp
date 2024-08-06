@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModel="clr-namespace:Pimp.ViewModel"
              xmlns:ui="clr-namespace:Pimp.UI"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              Focusable="True"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -13,8 +14,7 @@
     </UserControl.DataContext>
 
     <Canvas x:Name="canvas" Width="10000" Height="10000" Background="#3A3A3A" 
-            MouseRightButtonDown="MouseRightButtonDown_Canvas"
-            MouseLeftButtonDown="MouseLeftButtonDown_Canvas">
+            MouseRightButtonDown="MouseRightButtonDown_Canvas">
         <ItemsControl ItemsSource="{Binding GridLines}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -37,9 +37,12 @@
             <ListBox x:Name="MethodListBox" 
                      Width="200"
                      Height="400"
-                     MouseDoubleClick="MouseDoubleClick_MethodListBox"
                      ItemsSource="{Binding ProcessingUnitMethods}">
-
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding MethodDoubleClickCommand}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Name}">
@@ -73,5 +76,14 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
+
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseLeftButtonDown">
+                <i:InvokeCommandAction Command="{Binding LeftButtonDownCommand_MethodInstance}" PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseLeftButtonUp">
+                <i:InvokeCommandAction Command="{Binding LeftButtonUpCommand_MethodInstance}" PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
     </Canvas>
 </UserControl>

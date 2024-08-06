@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:local="clr-namespace:Pimp.ViewModel">
     <DataTemplate x:Key="TypeCircle">
         <Ellipse Width="10" Height="10">
             <Ellipse.Fill>
@@ -40,6 +41,11 @@
                     <ListView ItemsSource="{Binding MethodParameters}" 
                               Background="White"
                               Grid.Column="0">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding DataContext.LeftButtonDownCommand_ParameterInfo, RelativeSource={RelativeSource AncestorType=UserControl}}" PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <ListView.View>
                             <GridView ColumnHeaderContainerStyle="{StaticResource CanvasListViewGridHeaderStyle}">
                                 <GridViewColumn CellTemplate="{StaticResource TypeCircle}"/>
@@ -51,6 +57,11 @@
                     <ListView ItemsSource="{Binding MethodReturnParameters}" 
                               Background="White"
                               Grid.Column="2">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding DataContext.LeftButtonDownCommand_ParameterInfo, RelativeSource={RelativeSource AncestorType=UserControl}}" PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <ListView.View>
                             <GridView ColumnHeaderContainerStyle="{StaticResource CanvasListViewGridHeaderStyle}">
                                 <GridViewColumn DisplayMemberBinding="{Binding ParameterType.Name}"/>

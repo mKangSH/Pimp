@@ -33,11 +33,6 @@ namespace Pimp.View
             MethodListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
         }
 
-        private void MouseLeftButtonDown_Canvas(object sender, MouseButtonEventArgs e)
-        {
-            MethodListStackPanel.Visibility = Visibility.Collapsed;
-        }
-
         private void MouseRightButtonDown_Canvas(object sender, MouseButtonEventArgs e)
         {
             if((e.OriginalSource as FrameworkElement)?.DataContext is PimpCanvasObject)

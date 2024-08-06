@@ -10,15 +10,15 @@
     <UserControl.DataContext>
         <viewModel:FileViewModel/>
     </UserControl.DataContext>
-    
+
     <DockPanel LastChildFill="True">
         <TreeView>
             <!-- Resources 하위 폴더 모두 표시 -->
         </TreeView>
-        
+
         <!-- 선택한 파일 내용 미리 보기 -->
         <ContentControl Width="400" DockPanel.Dock="Right"/>
-        
+
         <ListView DockPanel.Dock="Right" Padding="15"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Auto">

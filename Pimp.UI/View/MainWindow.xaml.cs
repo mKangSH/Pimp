@@ -29,8 +29,15 @@ namespace Pimp
         public MainWindow()
         {
             InitializeComponent();
+            // DllWatcher watcher = new DllWatcher(GlobalConst.DllPath);
+        }
 
-            DllWatcher watcher = new DllWatcher(GlobalConst.DllPath);
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            MainScrollViewer.ScrollToVerticalOffset(MainScrollViewer.ScrollableHeight / 2);
+            MainScrollViewer.ScrollToHorizontalOffset(MainScrollViewer.ScrollableWidth / 2);
         }
     }
 }

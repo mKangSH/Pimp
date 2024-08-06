@@ -63,6 +63,7 @@
                     <Button Command="{Binding SaveCommand}" Style="{StaticResource SaveAndLoadButtonStyle}" Width="60" Height="60" Content="Save" Foreground="AliceBlue" FontSize="14"/>
                     <Button Command="{Binding LoadCommand}" Style="{StaticResource SaveAndLoadButtonStyle}" Width="60" Height="60" Content="Load" Foreground="AliceBlue" FontSize="14" Margin="20,0,0,0"/>
                 </StackPanel>
+                
             </Grid>
         </Border>
     </Grid>
